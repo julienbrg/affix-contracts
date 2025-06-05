@@ -16,7 +16,7 @@ bun install
 forge build
 ```
 
-## Testing
+## Test
 
 Run the basic test suite:
 
@@ -24,7 +24,7 @@ Run the basic test suite:
 forge test
 ```
 
-## Deployment
+## Deploy
 
 ...
 
