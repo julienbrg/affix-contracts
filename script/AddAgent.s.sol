@@ -12,8 +12,8 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  * @dev The caller must be the registered admin of the institution
  */
 contract AddAgent is Script {
-    // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x6c5c8D8C5c44C8c5c8c5c8c5c8c5c8C5C8c5c8c5;
+    // Updated to use the CORRECT deployed factory address
+    address constant VERIDOCS_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -74,7 +74,3 @@ contract AddAgent is Script {
         console2.log("The agent can now issue documents using issueDocument() or issueDocumentWithMetadata()");
     }
 }
-
-// Example usage:
-// AGENT_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" forge script script/AddAgent.s.sol --rpc-url localhost
-// --broadcast
