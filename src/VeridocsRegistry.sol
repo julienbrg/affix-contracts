@@ -4,7 +4,6 @@ pragma solidity >=0.8.28;
 /**
  * @title VeridocsRegistry
  * @dev Registry contract for managing documents issued by a specific institution
- * @author Genji Team
  */
 contract VeridocsRegistry {
     // Institution details
