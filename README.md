@@ -1,4 +1,4 @@
-# Cross-chain Gov
+# Veridocs Contracts
 
 Verify document authenticity.
 

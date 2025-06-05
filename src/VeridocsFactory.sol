@@ -6,7 +6,6 @@ import { VeridocsRegistry } from "./VeridocsRegistry.sol";
 /**
  * @title VeridocsFactory
  * @dev Factory contract for creating and managing VeridocsRegistry contracts for institutions
- * @author Genji Team
  */
 contract VeridocsFactory {
     // Mapping from admin address to their registry contract address
