@@ -1,7 +1,7 @@
 {
   "name": "veridocs-contracts",
   "description": "Verify document authenticity",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "Julien Béranger",
   "dependencies": {
     "@openzeppelin/contracts": "^5.2.0",
