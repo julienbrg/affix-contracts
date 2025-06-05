@@ -13,7 +13,7 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  */
 contract IssueDocument is Script {
     // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x6c5c8D8C5c44C8c5c8c5c8c5c8c5c8C5C8c5c8c5;
+    address constant VERIDOCS_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 

@@ -26,7 +26,21 @@ forge test
 
 ## Deploy
 
-...
+In a seperated shell:
+
+```bash
+supersim fork --chains=op
+```
+
+Then:
+
+```bash
+forge script script/DeployVeridocsFactory.sol --rpc-url op --broadcast
+forge script script/RegisterInstitution.s.sol --rpc-url op --broadcast
+forge script script/AddAgent.s.sol --rpc-url op --broadcast
+forge script script/IssueDocument.s.sol --rpc-url op --broadcast
+forge script script/VerifyDocument.s.sol --rpc-url op --broadcast
+```
 
 ## Support
 
