@@ -112,9 +112,8 @@ contract VeridocsContractsTest is Test {
         address registryAddress = factory.registerInstitution(ADMIN1, INSTITUTION_NAME1);
 
         // Get details
-        (address admin, string memory institutionName, bool isRegistered) = factory.getInstitutionDetails(
-            registryAddress
-        );
+        (address admin, string memory institutionName, bool isRegistered) =
+            factory.getInstitutionDetails(registryAddress);
 
         assertTrue(isRegistered, "Should be registered");
         assertEq(admin, ADMIN1, "Admin should match");
@@ -122,9 +121,8 @@ contract VeridocsContractsTest is Test {
 
         // Test non-registered registry address
         address fakeRegistry = address(0x1234);
-        (address adminFake, string memory instNameFake, bool registeredFake) = factory.getInstitutionDetails(
-            fakeRegistry
-        );
+        (address adminFake, string memory instNameFake, bool registeredFake) =
+            factory.getInstitutionDetails(fakeRegistry);
 
         assertFalse(registeredFake, "Should not be registered");
         assertEq(adminFake, address(0), "Admin should be zero");

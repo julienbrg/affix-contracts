@@ -55,11 +55,8 @@ contract DeployVeridocsFactory is Script {
             address currentOwner = existingFactory.owner();
             console2.log("Current factory owner:", currentOwner);
 
-            if (currentOwner == deployer) {
-                console2.log(" Factory owner is correct");
-            } else {
-                console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
-            }
+            if (currentOwner == deployer) console2.log(" Factory owner is correct");
+            else console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
 
             VeridocsFactoryAddress = expectedVeridocsFactory;
         } else {
@@ -67,9 +64,8 @@ contract DeployVeridocsFactory is Script {
             vm.startBroadcast(privateKey);
 
             // Deploy VeridocsFactory using Safe Singleton Factory
-            (bool success, bytes memory returnData) = SAFE_SINGLETON_FACTORY.call(
-                abi.encodePacked(SALT, VeridocsFactoryCreationCode)
-            );
+            (bool success, bytes memory returnData) =
+                SAFE_SINGLETON_FACTORY.call(abi.encodePacked(SALT, VeridocsFactoryCreationCode));
 
             require(success, "VeridocsFactory deployment failed");
 
@@ -91,14 +87,11 @@ contract DeployVeridocsFactory is Script {
         address factoryOwner = factory.owner();
         console2.log("Factory owner set to:", factoryOwner);
 
-        if (factoryOwner == deployer) {
-            console2.log(" Ownership correctly set to deployer");
-        } else {
-            console2.log(" Ownership mismatch - expected:", deployer, "actual:", factoryOwner);
-        }
+        if (factoryOwner == deployer) console2.log(" Ownership correctly set to deployer");
+        else console2.log(" Ownership mismatch - expected:", deployer, "actual:", factoryOwner);
 
         // Manual verification instructions for Sepolia
-        if (isNewDeployment && chainId == 11155111) {
+        if (isNewDeployment && chainId == 11_155_111) {
             console2.log("\n=== Etherscan Verification Instructions ===");
             console2.log("Run this command to verify the contract:");
             console2.log("");
@@ -115,7 +108,7 @@ contract DeployVeridocsFactory is Script {
         console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
 
-        if (chainId == 11155111) {
+        if (chainId == 11_155_111) {
             console2.log("- Etherscan URL: https://sepolia.etherscan.io/address/", VeridocsFactoryAddress);
         }
 
@@ -127,10 +120,9 @@ contract DeployVeridocsFactory is Script {
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
-        return
-            address(
-                uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
-            );
+        return address(
+            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
+        );
     }
 
     function bytesToAddress(bytes memory data) internal pure returns (address) {

@@ -89,4 +89,5 @@ contract VerifyDocument is Script {
 }
 
 // Example usage:
-// DOCUMENT_CID="QmExampleDocumentHash123" REGISTRY_ADDRESS="0x..." forge script script/VerifyDocument.s.sol --rpc-url localhost
+// DOCUMENT_CID="QmExampleDocumentHash123" REGISTRY_ADDRESS="0x..." forge script script/VerifyDocument.s.sol --rpc-url
+// localhost
