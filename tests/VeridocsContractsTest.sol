@@ -30,7 +30,7 @@ contract VeridocsContractsTest is Test {
     function setUp() public {
         // Deploy factory with FACTORY_OWNER as the owner
         vm.prank(FACTORY_OWNER);
-        factory = new VeridocsFactory();
+        factory = new VeridocsFactory(FACTORY_OWNER);
 
         // Verify owner is set correctly
         assertEq(factory.owner(), FACTORY_OWNER, "Factory owner should be set correctly");
