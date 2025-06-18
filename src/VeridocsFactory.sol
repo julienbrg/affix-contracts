@@ -37,7 +37,11 @@ contract VeridocsFactory is Ownable {
     function registerInstitution(
         address admin,
         string memory name
-    ) external onlyOwner returns (address registryAddress) {
+    )
+        external
+        onlyOwner
+        returns (address registryAddress)
+    {
         require(admin != address(0), "Invalid admin address");
         require(bytes(name).length > 0, "Institution name cannot be empty");
 
@@ -94,9 +98,11 @@ contract VeridocsFactory is Ownable {
      * @return institutionName The name of the institution
      * @return isRegistered Whether the registry is registered with this factory
      */
-    function getInstitutionDetails(
-        address registryAddress
-    ) external view returns (address admin, string memory institutionName, bool isRegistered) {
+    function getInstitutionDetails(address registryAddress)
+        external
+        view
+        returns (address admin, string memory institutionName, bool isRegistered)
+    {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
             VeridocsRegistry registry = VeridocsRegistry(registryAddress);

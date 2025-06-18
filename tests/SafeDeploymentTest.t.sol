@@ -20,6 +20,7 @@ contract SafeDeploymentTest is Test {
     address public constant DEPLOYER1 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
     address public constant DEPLOYER2 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
     address public constant ADMIN1 = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+    address public constant FACTORY_OWNER = 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1;
 
     // Chain IDs for testing
     uint256 public constant ETHEREUM_CHAIN_ID = 1;
@@ -36,7 +37,8 @@ contract SafeDeploymentTest is Test {
     }
 
     function testCalculateExpectedAddress() public view {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
 
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
@@ -48,7 +50,8 @@ contract SafeDeploymentTest is Test {
     }
 
     function testDeployWithMockFactory() public {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
 
@@ -68,10 +71,12 @@ contract SafeDeploymentTest is Test {
         // Verify the contract is working
         VeridocsFactory factory = VeridocsFactory(deployedAddress);
         assertEq(factory.getInstitutionCount(), 0, "Factory should start with 0 institutions");
+        assertEq(factory.owner(), FACTORY_OWNER, "Factory owner should be set correctly");
     }
 
     function testSameAddressAcrossChains() public {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
 
         // All deployments should use the same mock factory address for consistent CREATE2 calculation
@@ -100,7 +105,8 @@ contract SafeDeploymentTest is Test {
     }
 
     function testDifferentDeployersSameAddress() public {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
 
@@ -136,12 +142,13 @@ contract SafeDeploymentTest is Test {
     }
 
     function testDeploymentGasCost() public {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
 
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
 
-        (bool success, ) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
+        (bool success,) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
         require(success, "Deployment failed");
 
         uint256 gasUsed = gasBefore - gasleft();
@@ -158,16 +165,16 @@ contract SafeDeploymentTest is Test {
         address factoryAddress = deployVeridocsFactory(DEPLOYER1);
         VeridocsFactory factory = VeridocsFactory(factoryAddress);
 
-        // The factory owner is actually the mock factory address (msg.sender during construction)
+        // The factory owner should be FACTORY_OWNER (from constructor parameter)
         address actualOwner = factory.owner();
         console.log("Actual factory owner:", actualOwner);
-        console.log("Mock factory address:", address(mockFactory));
+        console.log("Expected factory owner:", FACTORY_OWNER);
 
-        // The owner should be the mock factory since it deployed the contract
-        assertEq(actualOwner, address(mockFactory), "Factory owner should be the mock factory");
+        // The owner should be FACTORY_OWNER as specified in constructor
+        assertEq(actualOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
-        // Mock factory can register institutions (since it's the owner)
-        vm.prank(address(mockFactory));
+        // Factory owner can register institutions
+        vm.prank(FACTORY_OWNER);
         address registryAddress = factory.registerInstitution(ADMIN1, "Test University");
 
         // Verify the institution was registered
@@ -178,9 +185,8 @@ contract SafeDeploymentTest is Test {
         assertTrue(registryAddress != address(0), "Registry address should not be zero");
 
         // Verify institution details
-        (address admin, string memory institutionName, bool isRegistered) = factory.getInstitutionDetails(
-            registryAddress
-        );
+        (address admin, string memory institutionName, bool isRegistered) =
+            factory.getInstitutionDetails(registryAddress);
         assertTrue(isRegistered, "Institution should be registered");
         assertEq(admin, ADMIN1, "Admin should match");
         assertEq(institutionName, "Test University", "Institution name should match");
@@ -193,17 +199,16 @@ contract SafeDeploymentTest is Test {
     }
 
     function testFactoryOwnershipAfterDeployment() public {
-        // Deploy factory with DEPLOYER1
+        // Deploy factory with FACTORY_OWNER
         address factoryAddress = deployVeridocsFactory(DEPLOYER1);
         VeridocsFactory factory = VeridocsFactory(factoryAddress);
 
-        // The factory owner is actually the mock factory address since CREATE2 deployment
-        // makes the factory contract the msg.sender during construction
+        // The factory owner should be FACTORY_OWNER (from constructor parameter)
         address actualOwner = factory.owner();
-        assertEq(actualOwner, address(mockFactory), "Mock factory should be the factory owner");
+        assertEq(actualOwner, FACTORY_OWNER, "FACTORY_OWNER should be the factory owner");
 
-        // Only the actual owner (mock factory) can register institutions
-        vm.prank(address(mockFactory));
+        // Only the actual owner (FACTORY_OWNER) can register institutions
+        vm.prank(FACTORY_OWNER);
         address registryAddress = factory.registerInstitution(ADMIN1, "Test University");
         assertTrue(registryAddress != address(0), "Registry should be deployed");
 
@@ -214,7 +219,7 @@ contract SafeDeploymentTest is Test {
 
         console.log("Verified: Factory ownership works correctly");
         console.log("Actual owner:", actualOwner);
-        console.log("Expected owner (mock factory):", address(mockFactory));
+        console.log("Expected owner (FACTORY_OWNER):", FACTORY_OWNER);
     }
 
     function testFactoryStatsAfterRegistration() public {
@@ -222,19 +227,19 @@ contract SafeDeploymentTest is Test {
         address factoryAddress = deployVeridocsFactory(DEPLOYER1);
         VeridocsFactory factory = VeridocsFactory(factoryAddress);
 
-        // Check initial stats - owner is the mock factory
+        // Check initial stats - owner is FACTORY_OWNER
         (uint256 totalInstitutions, address factoryOwner) = factory.getFactoryStats();
         assertEq(totalInstitutions, 0, "Should start with 0 institutions");
-        assertEq(factoryOwner, address(mockFactory), "Factory owner should be mock factory");
+        assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
-        // Register an institution using the actual owner (mock factory)
-        vm.prank(address(mockFactory));
+        // Register an institution using the actual owner (FACTORY_OWNER)
+        vm.prank(FACTORY_OWNER);
         factory.registerInstitution(ADMIN1, "Test University");
 
         // Check updated stats
         (totalInstitutions, factoryOwner) = factory.getFactoryStats();
         assertEq(totalInstitutions, 1, "Should have 1 institution after registration");
-        assertEq(factoryOwner, address(mockFactory), "Factory owner should remain mock factory");
+        assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should remain FACTORY_OWNER");
 
         console.log("Verified: Factory stats work correctly");
         console.log("Total institutions:", totalInstitutions);
@@ -243,7 +248,8 @@ contract SafeDeploymentTest is Test {
 
     // Helper function to deploy VeridocsFactory using mock Safe Singleton Factory
     function deployVeridocsFactory(address deployer) internal returns (address) {
-        bytes memory creationCode = type(VeridocsFactory).creationCode;
+        // Include constructor parameters in creation code
+        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
 
         vm.prank(deployer);
         (bool success, bytes memory returnData) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
@@ -256,7 +262,11 @@ contract SafeDeploymentTest is Test {
         address deployer,
         bytes32 salt,
         bytes32 bytecodeHash
-    ) internal pure returns (address) {
+    )
+        internal
+        pure
+        returns (address)
+    {
         return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 }
@@ -270,7 +280,7 @@ contract MockSafeSingletonFactory {
     mapping(bytes32 => address) public deployedContracts;
 
     // Add receive function to handle plain ether transfers
-    receive() external payable {}
+    receive() external payable { }
 
     /**
      * @notice Simulates CREATE2 deployment
@@ -309,9 +319,7 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) {
-                revert(0, 0)
-            }
+            if iszero(deployedAddress) { revert(0, 0) }
         }
 
         // Store deployment

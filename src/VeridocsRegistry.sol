@@ -137,13 +137,8 @@ contract VeridocsRegistry {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] = Document({
-            cid: cid,
-            timestamp: block.timestamp,
-            exists: true,
-            metadata: metadata,
-            issuedBy: msg.sender
-        });
+        documents[cid] =
+            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
 
         documentCids.push(cid);
 
@@ -157,9 +152,11 @@ contract VeridocsRegistry {
      * @return timestamp When the document was issued
      * @return institutionName_ The name of the issuing institution
      */
-    function verifyDocument(
-        string memory cid
-    ) external view returns (bool exists, uint256 timestamp, string memory institutionName_) {
+    function verifyDocument(string memory cid)
+        external
+        view
+        returns (bool exists, uint256 timestamp, string memory institutionName_)
+    {
         Document memory doc = documents[cid];
         return (doc.exists, doc.timestamp, institutionName);
     }
@@ -173,9 +170,7 @@ contract VeridocsRegistry {
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(
-        string memory cid
-    )
+    function getDocumentDetails(string memory cid)
         external
         view
         returns (

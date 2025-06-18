@@ -90,4 +90,5 @@ contract RevokeAgent is Script {
 }
 
 // Example usage:
-// AGENT_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" REGISTRY_ADDRESS="0x..." forge script script/RevokeAgent.s.sol --rpc-url localhost --broadcast
+// AGENT_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" REGISTRY_ADDRESS="0x..." forge script
+// script/RevokeAgent.s.sol --rpc-url localhost --broadcast

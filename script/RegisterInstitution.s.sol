@@ -94,4 +94,5 @@ contract RegisterInstitution is Script {
 }
 
 // Example usage:
-// INSTITUTION_NAME="University of Example" ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script script/RegisterInstitution.s.sol --rpc-url localhost --broadcast
+// INSTITUTION_NAME="University of Example" ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script
+// script/RegisterInstitution.s.sol --rpc-url localhost --broadcast
