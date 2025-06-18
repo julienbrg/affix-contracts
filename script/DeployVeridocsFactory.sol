@@ -7,7 +7,7 @@ import { VeridocsFactory } from "../src/VeridocsFactory.sol";
 
 /**
  * @title DeployVeridocsFactory
- * @notice Deploys the VeridocsFactory contract using the Safe Singleton Factory
+ * @notice Deploys the VeridocsFactory contract using the Safe Singleton Factory with specified owner
  * @dev Uses CREATE2 to ensure deterministic deployment addresses across chains
  */
 contract DeployVeridocsFactory is Script {
@@ -24,8 +24,15 @@ contract DeployVeridocsFactory is Script {
         console2.log("Deploying VeridocsFactory on chain ID:", chainId);
         console2.log("Using Safe Singleton Factory at:", SAFE_SINGLETON_FACTORY);
 
-        // Get the creation code for VeridocsFactory
-        bytes memory VeridocsFactoryCreationCode = type(VeridocsFactory).creationCode;
+        // Get the deployer address (this will be the factory owner)
+        address deployer = vm.addr(privateKey);
+        console2.log("Deployer/Future Factory Owner:", deployer);
+
+        // Get the creation code for VeridocsFactory with constructor parameters
+        bytes memory VeridocsFactoryCreationCode = abi.encodePacked(
+            type(VeridocsFactory).creationCode,
+            abi.encode(deployer) // Constructor parameter: initialOwner
+        );
         console2.log("VeridocsFactory creation code length:", VeridocsFactoryCreationCode.length, "bytes");
 
         // Compute the expected address for VeridocsFactory
@@ -40,6 +47,18 @@ contract DeployVeridocsFactory is Script {
 
         if (codeSize > 0) {
             console2.log("VeridocsFactory already deployed at:", expectedVeridocsFactory);
+
+            // Verify ownership
+            VeridocsFactory existingFactory = VeridocsFactory(expectedVeridocsFactory);
+            address currentOwner = existingFactory.owner();
+            console2.log("Current factory owner:", currentOwner);
+
+            if (currentOwner == deployer) {
+                console2.log(" Factory owner is correct");
+            } else {
+                console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
+            }
+
             return expectedVeridocsFactory;
         }
 
@@ -47,8 +66,9 @@ contract DeployVeridocsFactory is Script {
         vm.startBroadcast(privateKey);
 
         // Deploy VeridocsFactory using Safe Singleton Factory
-        (bool success, bytes memory returnData) =
-            SAFE_SINGLETON_FACTORY.call(abi.encodePacked(SALT, VeridocsFactoryCreationCode));
+        (bool success, bytes memory returnData) = SAFE_SINGLETON_FACTORY.call(
+            abi.encodePacked(SALT, VeridocsFactoryCreationCode)
+        );
 
         require(success, "VeridocsFactory deployment failed");
 
@@ -62,22 +82,35 @@ contract DeployVeridocsFactory is Script {
 
         vm.stopBroadcast();
 
+        // Verify ownership is set correctly
+        VeridocsFactory factory = VeridocsFactory(VeridocsFactoryAddress);
+        address factoryOwner = factory.owner();
+        console2.log("Factory owner set to:", factoryOwner);
+
+        if (factoryOwner == deployer) {
+            console2.log(" Ownership correctly set to deployer");
+        } else {
+            console2.log(" Ownership mismatch - expected:", deployer, "actual:", factoryOwner);
+        }
+
         console2.log("\nDeployment Summary:");
         console2.log("- Chain ID:", chainId);
         console2.log("- VeridocsFactory:", VeridocsFactoryAddress);
+        console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
         console2.log("\nNext steps:");
         console2.log("1. Deploy this same contract on other chains using the same command");
         console2.log("2. The contract will have the same address on all chains");
-        console2.log("3. Institutions can register using: registerInstitution(string name)");
+        console2.log("3. You can now register institutions using: registerInstitution(address admin, string name)");
 
         return VeridocsFactoryAddress;
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
-        return address(
-            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
-        );
+        return
+            address(
+                uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
+            );
     }
 
     function bytesToAddress(bytes memory data) internal pure returns (address) {

@@ -13,7 +13,7 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  */
 contract IssueDocument is Script {
     // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
+    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -24,36 +24,34 @@ contract IssueDocument is Script {
         // Document details from environment
         string memory documentCid = vm.envString("DOCUMENT_CID");
         string memory metadata = vm.envOr("DOCUMENT_METADATA", string(""));
-        address adminAddress = vm.envAddress("ADMIN_ADDRESS");
+        address registryAddress = vm.envAddress("REGISTRY_ADDRESS");
 
         require(bytes(documentCid).length > 0, "DOCUMENT_CID environment variable required");
-        require(adminAddress != address(0), "ADMIN_ADDRESS environment variable required");
+        require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
         VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
 
         // Get the issuer address (could be admin or agent)
         address issuer = vm.addr(privateKey);
         console2.log("Issuer address:", issuer);
-        console2.log("Admin address:", adminAddress);
+        console2.log("Registry address:", registryAddress);
         console2.log("Document CID:", documentCid);
         console2.log("Document metadata:", metadata);
 
-        // Check if admin is registered
-        require(factory.isInstitutionRegistered(adminAddress), "Admin not registered");
+        // Verify the registry is registered with the factory
+        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
-        // Get the registry address
-        address registryAddress = factory.getInstitutionRegistry(adminAddress);
+        // Get registry details
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
-
-        console2.log("Using registry at:", registryAddress);
         console2.log("Institution name:", registry.institutionName());
+        console2.log("Registry admin:", registry.admin());
 
         // Check if issuer can issue documents
         require(registry.canIssueDocuments(issuer), "Issuer not authorized to issue documents");
 
         // Determine issuer role
         string memory issuerRole;
-        if (issuer == adminAddress) issuerRole = "admin";
+        if (issuer == registry.admin()) issuerRole = "admin";
         else if (registry.isAgent(issuer)) issuerRole = "agent";
         else revert("Issuer is not admin or authorized agent");
 
@@ -100,5 +98,4 @@ contract IssueDocument is Script {
 
 // Example usage:
 // DOCUMENT_CID="QmExampleDocumentHash123" DOCUMENT_METADATA="Diploma in Computer Science"
-// ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script script/IssueDocument.s.sol --rpc-url
-// localhost --broadcast
+// REGISTRY_ADDRESS="0x..." forge script script/IssueDocument.s.sol --rpc-url localhost --broadcast
