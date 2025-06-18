@@ -44,11 +44,6 @@ contract VeridocsRegistry {
         _;
     }
 
-    modifier onlyAdminOrAgent() {
-        require(msg.sender == admin || agents[msg.sender], "Only admin or authorized agent can call this function");
-        _;
-    }
-
     modifier documentNotExists(string memory cid) {
         require(!documents[cid].exists, "Document already exists");
         _;
@@ -56,7 +51,6 @@ contract VeridocsRegistry {
 
     modifier validAgent(address agent) {
         require(agent != address(0), "Invalid agent address");
-        require(agent != admin, "Admin cannot be an agent");
         _;
     }
 
@@ -108,19 +102,30 @@ contract VeridocsRegistry {
     }
 
     /**
-     * @dev Issue a new document
+     * @dev Issue a new document (callable by anyone who can issue documents)
      * @param cid The IPFS CID of the document
      */
-    function issueDocument(string memory cid) external onlyAdminOrAgent {
+    function issueDocument(string memory cid) external {
+        require(canIssueDocuments(msg.sender), "Not authorized to issue documents");
         _issueDocument(cid, "");
     }
 
     /**
-     * @dev Issue a new document with metadata
+     * @dev Issue a new document (CALLABLE BY ANYONE FOR TESTS ONLY)
+     * @param cid The IPFS CID of the document
+     * @notice METHOD MUST BE REMOVE FOR PRODUCTION USE
+     */
+    function issueDocumentOpenBar(string memory cid) external {
+        _issueDocument(cid, "");
+    }
+
+    /**
+     * @dev Issue a new document with metadata (callable by anyone who can issue documents)
      * @param cid The IPFS CID of the document
      * @param metadata Additional metadata for the document
      */
-    function issueDocumentWithMetadata(string memory cid, string memory metadata) external onlyAdminOrAgent {
+    function issueDocumentWithMetadata(string memory cid, string memory metadata) external {
+        require(canIssueDocuments(msg.sender), "Not authorized to issue documents");
         _issueDocument(cid, metadata);
     }
 
@@ -132,8 +137,13 @@ contract VeridocsRegistry {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] =
-            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
+        documents[cid] = Document({
+            cid: cid,
+            timestamp: block.timestamp,
+            exists: true,
+            metadata: metadata,
+            issuedBy: msg.sender
+        });
 
         documentCids.push(cid);
 
@@ -147,11 +157,9 @@ contract VeridocsRegistry {
      * @return timestamp When the document was issued
      * @return institutionName_ The name of the issuing institution
      */
-    function verifyDocument(string memory cid)
-        external
-        view
-        returns (bool exists, uint256 timestamp, string memory institutionName_)
-    {
+    function verifyDocument(
+        string memory cid
+    ) external view returns (bool exists, uint256 timestamp, string memory institutionName_) {
         Document memory doc = documents[cid];
         return (doc.exists, doc.timestamp, institutionName);
     }
@@ -165,7 +173,9 @@ contract VeridocsRegistry {
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(string memory cid)
+    function getDocumentDetails(
+        string memory cid
+    )
         external
         view
         returns (
@@ -207,7 +217,7 @@ contract VeridocsRegistry {
      * @param issuer The address to check
      * @return Boolean indicating if the address can issue documents
      */
-    function canIssueDocuments(address issuer) external view returns (bool) {
+    function canIssueDocuments(address issuer) public view returns (bool) {
         return issuer == admin || agents[issuer];
     }
 

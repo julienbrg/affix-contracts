@@ -1,79 +1,64 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.28;
 
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { VeridocsRegistry } from "./VeridocsRegistry.sol";
 
 /**
  * @title VeridocsFactory
  * @dev Factory contract for creating and managing VeridocsRegistry contracts for institutions
+ * @notice Only the owner can register new institutions
  */
-contract VeridocsFactory {
-    // Mapping from admin address to their registry contract address
-    mapping(address => address) public institutionContracts;
+contract VeridocsFactory is Ownable {
+    // Array of all deployed registry addresses for enumeration
+    address[] public deployedRegistries;
 
-    // Mapping to check if an admin is authorized
-    mapping(address => bool) public authorizedAdmins;
-
-    // Array of all registered admins for enumeration
-    address[] public allAdmins;
+    // Mapping to check if a registry address is valid (deployed by this factory)
+    mapping(address => bool) public isValidRegistry;
 
     // Events
     event InstitutionRegistered(address indexed admin, address indexed contractAddress, string institutionName);
 
-    event InstitutionUpdated(address indexed admin, string newName);
+    /**
+     * @dev Constructor - sets the specified address as the owner
+     * @param initialOwner The address that will become the owner of this factory
+     */
+    constructor(address initialOwner) Ownable(initialOwner) {
+        require(initialOwner != address(0), "Initial owner cannot be zero address");
+    }
 
     /**
      * @dev Register a new institution and deploy their VeridocsRegistry contract
+     * @param admin The address that will be the admin of the new registry
      * @param name The name of the institution
+     * @notice Only the factory owner can register new institutions
+     * @return registryAddress The address of the newly deployed registry
      */
-    function registerInstitution(string memory name) external {
+    function registerInstitution(
+        address admin,
+        string memory name
+    ) external onlyOwner returns (address registryAddress) {
+        require(admin != address(0), "Invalid admin address");
         require(bytes(name).length > 0, "Institution name cannot be empty");
-        require(!authorizedAdmins[msg.sender], "Admin already registered");
 
         // Deploy new VeridocsRegistry contract
-        VeridocsRegistry newRegistry = new VeridocsRegistry(msg.sender, name);
-        address registryAddress = address(newRegistry);
+        VeridocsRegistry newRegistry = new VeridocsRegistry(admin, name);
+        registryAddress = address(newRegistry);
 
-        // Update mappings
-        institutionContracts[msg.sender] = registryAddress;
-        authorizedAdmins[msg.sender] = true;
-        allAdmins.push(msg.sender);
+        // Update tracking
+        deployedRegistries.push(registryAddress);
+        isValidRegistry[registryAddress] = true;
 
-        emit InstitutionRegistered(msg.sender, registryAddress, name);
+        emit InstitutionRegistered(admin, registryAddress, name);
     }
 
     /**
-     * @dev Update institution name (only the admin itself can call this)
-     * @param newName The new name for the institution
-     * @notice This function is deprecated. Use the registry's updateInstitutionName function directly.
+     * @dev Check if an institution registry is deployed by this factory
+     * @param registryAddress The registry address to check
+     * @return Boolean indicating if the registry was deployed by this factory
      */
-    function updateInstitutionName(string memory newName) external view {
-        require(authorizedAdmins[msg.sender], "Admin not registered");
-        require(bytes(newName).length > 0, "Institution name cannot be empty");
-
-        // Note: This function cannot work as designed because the registry expects
-        // msg.sender to be the admin, not this factory contract.
-        // Users should call updateInstitutionName directly on their registry contract.
-        revert("Use registry.updateInstitutionName() directly");
-    }
-
-    /**
-     * @dev Get the registry contract address for an admin
-     * @param admin The admin address
-     * @return The registry contract address
-     */
-    function getInstitutionRegistry(address admin) external view returns (address) {
-        require(authorizedAdmins[admin], "Admin not registered");
-        return institutionContracts[admin];
-    }
-
-    /**
-     * @dev Check if an admin is registered
-     * @param admin The admin address to check
-     * @return Boolean indicating if the admin is registered
-     */
-    function isInstitutionRegistered(address admin) external view returns (bool) {
-        return authorizedAdmins[admin];
+    function isInstitutionRegistered(address registryAddress) external view returns (bool) {
+        return isValidRegistry[registryAddress];
     }
 
     /**
@@ -81,44 +66,51 @@ contract VeridocsFactory {
      * @return The count of registered institutions
      */
     function getInstitutionCount() external view returns (uint256) {
-        return allAdmins.length;
+        return deployedRegistries.length;
     }
 
     /**
-     * @dev Get admin address by index
-     * @param index The index in the allAdmins array
-     * @return The admin address
+     * @dev Get registry address by index
+     * @param index The index in the deployedRegistries array
+     * @return The registry address
      */
     function getInstitutionByIndex(uint256 index) external view returns (address) {
-        require(index < allAdmins.length, "Index out of bounds");
-        return allAdmins[index];
+        require(index < deployedRegistries.length, "Index out of bounds");
+        return deployedRegistries[index];
     }
 
     /**
-     * @dev Get all registered admins
-     * @return Array of all admin addresses
+     * @dev Get all deployed registry addresses
+     * @return Array of all registry addresses
      */
     function getAllInstitutions() external view returns (address[] memory) {
-        return allAdmins;
+        return deployedRegistries;
     }
 
     /**
-     * @dev Get institution details including name and registry address
-     * @param admin The admin address
-     * @return registryAddress The registry contract address
+     * @dev Get institution details including name and admin
+     * @param registryAddress The registry contract address
+     * @return admin The admin address of the registry
      * @return institutionName The name of the institution
-     * @return isRegistered Whether the admin is registered
+     * @return isRegistered Whether the registry is registered with this factory
      */
-    function getInstitutionDetails(address admin)
-        external
-        view
-        returns (address registryAddress, string memory institutionName, bool isRegistered)
-    {
-        isRegistered = authorizedAdmins[admin];
+    function getInstitutionDetails(
+        address registryAddress
+    ) external view returns (address admin, string memory institutionName, bool isRegistered) {
+        isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
-            registryAddress = institutionContracts[admin];
             VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+            admin = registry.admin();
             institutionName = registry.institutionName();
         }
+    }
+
+    /**
+     * @dev Get comprehensive factory statistics
+     * @return totalInstitutions Total number of registered institutions
+     * @return factoryOwner The owner of this factory
+     */
+    function getFactoryStats() external view returns (uint256 totalInstitutions, address factoryOwner) {
+        return (deployedRegistries.length, owner());
     }
 }

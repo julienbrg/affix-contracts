@@ -13,7 +13,7 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  */
 contract RevokeAgent is Script {
     // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x6c5c8D8C5c44C8c5c8c5c8c5c8c5c8C5C8c5c8c5;
+    address constant VERIDOCS_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -23,25 +23,32 @@ contract RevokeAgent is Script {
 
         // Agent details from environment
         address agentAddress = vm.envAddress("AGENT_ADDRESS");
+        address registryAddress = vm.envAddress("REGISTRY_ADDRESS");
+
         require(agentAddress != address(0), "AGENT_ADDRESS environment variable required");
+        require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
         VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
 
-        // Get the admin address
-        address admin = vm.addr(privateKey);
-        console2.log("Admin address:", admin);
+        // Get the caller address (should be the admin)
+        address caller = vm.addr(privateKey);
+        console2.log("Caller address:", caller);
+        console2.log("Registry address:", registryAddress);
         console2.log("Agent address to revoke:", agentAddress);
 
-        // Check if admin is registered
-        require(factory.isInstitutionRegistered(admin), "Admin not registered");
+        // Verify the registry is registered with the factory
+        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
-        // Get the registry address
-        address registryAddress = factory.getInstitutionRegistry(admin);
+        // Get registry details and verify caller is admin
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+        address registryAdmin = registry.admin();
 
-        console2.log("Using registry at:", registryAddress);
+        console2.log("Registry admin:", registryAdmin);
         console2.log("Institution name:", registry.institutionName());
         console2.log("Current agent count:", registry.getAgentCount());
+
+        // Verify the caller is indeed the admin of the registry
+        require(registry.admin() == caller, "Caller is not the registry admin");
 
         // Check if agent exists
         if (!registry.isAgent(agentAddress)) {
@@ -83,5 +90,4 @@ contract RevokeAgent is Script {
 }
 
 // Example usage:
-// AGENT_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" forge script script/RevokeAgent.s.sol --rpc-url localhost
-// --broadcast
+// AGENT_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" REGISTRY_ADDRESS="0x..." forge script script/RevokeAgent.s.sol --rpc-url localhost --broadcast

@@ -12,45 +12,34 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  * @dev Anyone can verify documents - no authentication required
  */
 contract VerifyDocument is Script {
-    // Calculate the expected VeridocsFactory address (same across all chains)
-    address constant SAFE_SINGLETON_FACTORY = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7;
-    bytes32 constant SALT = keccak256(bytes("VERIDOCS_DOCUMENT_FACTORY_V1"));
+    // Current VeridocsFactory address
+    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
 
     function run() public view {
         uint256 chainId = block.chainid;
         console2.log("Verifying document on chain ID:", chainId);
 
-        // Calculate the expected factory address
-        bytes memory factoryCreationCode = type(VeridocsFactory).creationCode;
-        bytes32 factoryBytecodeHash = keccak256(factoryCreationCode);
-        address expectedFactoryAddress = address(
-            uint160(
-                uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, SALT, factoryBytecodeHash)))
-            )
-        );
-
         // Document details from environment
         string memory documentCid = vm.envString("DOCUMENT_CID");
-        address adminAddress = vm.envAddress("ADMIN_ADDRESS");
+        address registryAddress = vm.envAddress("REGISTRY_ADDRESS");
 
         require(bytes(documentCid).length > 0, "DOCUMENT_CID environment variable required");
-        require(adminAddress != address(0), "ADMIN_ADDRESS environment variable required");
+        require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
-        VeridocsFactory factory = VeridocsFactory(expectedFactoryAddress);
+        VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
 
-        console2.log("Using VeridocsFactory at:", expectedFactoryAddress);
-        console2.log("Admin address:", adminAddress);
+        console2.log("Using VeridocsFactory at:", VERIDOCS_FACTORY_ADDRESS);
+        console2.log("Registry address:", registryAddress);
         console2.log("Document CID to verify:", documentCid);
 
-        // Check if admin is registered
-        require(factory.isInstitutionRegistered(adminAddress), "Admin not registered");
+        // Verify the registry is registered with the factory
+        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
-        // Get the registry address
-        address registryAddress = factory.getInstitutionRegistry(adminAddress);
+        // Get registry details
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
 
-        console2.log("Using registry at:", registryAddress);
         console2.log("Institution name:", registry.institutionName());
+        console2.log("Registry admin:", registry.admin());
 
         // Verify the document
         (bool exists, uint256 timestamp, string memory institutionName) = registry.verifyDocument(documentCid);
@@ -65,9 +54,12 @@ contract VerifyDocument is Script {
 
             // Get full document details
             (
-                bool existsDetails,
-                uint256 timestampDetails,
-                string memory institutionNameDetails,
+                ,
+                ,
+                ,
+                // bool existsDetails - not needed
+                // uint256 timestampDetails - not needed
+                // string memory institutionNameDetails - not needed
                 string memory metadata,
                 address issuedBy
             ) = registry.getDocumentDetails(documentCid);
@@ -95,3 +87,6 @@ contract VerifyDocument is Script {
         return string(abi.encodePacked("Unix timestamp: ", vm.toString(timestamp)));
     }
 }
+
+// Example usage:
+// DOCUMENT_CID="QmExampleDocumentHash123" REGISTRY_ADDRESS="0x..." forge script script/VerifyDocument.s.sol --rpc-url localhost
