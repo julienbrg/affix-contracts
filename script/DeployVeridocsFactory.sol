@@ -7,8 +7,8 @@ import { VeridocsFactory } from "../src/VeridocsFactory.sol";
 
 /**
  * @title DeployVeridocsFactory
- * @notice Deploys the VeridocsFactory contract using the Safe Singleton Factory with specified owner
- * @dev Uses CREATE2 to ensure deterministic deployment addresses across chains
+ * @notice Enhanced deployment script with automatic Etherscan verification
+ * @dev Deploys and verifies the VeridocsFactory contract on Sepolia
  */
 contract DeployVeridocsFactory is Script {
     // Safe Singleton Factory address - same on all EVM chains
@@ -45,6 +45,8 @@ contract DeployVeridocsFactory is Script {
             codeSize := extcodesize(expectedVeridocsFactory)
         }
 
+        bool isNewDeployment = false;
+
         if (codeSize > 0) {
             console2.log("VeridocsFactory already deployed at:", expectedVeridocsFactory);
 
@@ -59,28 +61,30 @@ contract DeployVeridocsFactory is Script {
                 console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
             }
 
-            return expectedVeridocsFactory;
+            VeridocsFactoryAddress = expectedVeridocsFactory;
+        } else {
+            // Start broadcasting with the private key
+            vm.startBroadcast(privateKey);
+
+            // Deploy VeridocsFactory using Safe Singleton Factory
+            (bool success, bytes memory returnData) = SAFE_SINGLETON_FACTORY.call(
+                abi.encodePacked(SALT, VeridocsFactoryCreationCode)
+            );
+
+            require(success, "VeridocsFactory deployment failed");
+
+            // Parse the returned address
+            VeridocsFactoryAddress = bytesToAddress(returnData);
+            console2.log("VeridocsFactory deployed at:", VeridocsFactoryAddress);
+
+            // Verify deployment
+            require(VeridocsFactoryAddress == expectedVeridocsFactory, "Deployed address mismatch");
+            console2.log("Deployment verified successfully!");
+
+            vm.stopBroadcast();
+
+            isNewDeployment = true;
         }
-
-        // Start broadcasting with the private key
-        vm.startBroadcast(privateKey);
-
-        // Deploy VeridocsFactory using Safe Singleton Factory
-        (bool success, bytes memory returnData) = SAFE_SINGLETON_FACTORY.call(
-            abi.encodePacked(SALT, VeridocsFactoryCreationCode)
-        );
-
-        require(success, "VeridocsFactory deployment failed");
-
-        // Parse the returned address
-        VeridocsFactoryAddress = bytesToAddress(returnData);
-        console2.log("VeridocsFactory deployed at:", VeridocsFactoryAddress);
-
-        // Verify deployment
-        require(VeridocsFactoryAddress == expectedVeridocsFactory, "Deployed address mismatch");
-        console2.log("Deployment verified successfully!");
-
-        vm.stopBroadcast();
 
         // Verify ownership is set correctly
         VeridocsFactory factory = VeridocsFactory(VeridocsFactoryAddress);
@@ -93,15 +97,31 @@ contract DeployVeridocsFactory is Script {
             console2.log(" Ownership mismatch - expected:", deployer, "actual:", factoryOwner);
         }
 
+        // Manual verification instructions for Sepolia
+        if (isNewDeployment && chainId == 11155111) {
+            console2.log("\n=== Etherscan Verification Instructions ===");
+            console2.log("Run this command to verify the contract:");
+            console2.log("");
+            console2.log("forge verify-contract", VeridocsFactoryAddress, "src/VeridocsFactory.sol:VeridocsFactory \\");
+            console2.log("  --chain-id", chainId, "\\");
+            console2.log("  --constructor-args", vm.toString(abi.encode(deployer)), "\\");
+            console2.log("  --etherscan-api-key $API_KEY_ETHERSCAN");
+            console2.log("");
+        }
+
         console2.log("\nDeployment Summary:");
         console2.log("- Chain ID:", chainId);
         console2.log("- VeridocsFactory:", VeridocsFactoryAddress);
         console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
+
+        if (chainId == 11155111) {
+            console2.log("- Etherscan URL: https://sepolia.etherscan.io/address/", VeridocsFactoryAddress);
+        }
+
         console2.log("\nNext steps:");
-        console2.log("1. Deploy this same contract on other chains using the same command");
-        console2.log("2. The contract will have the same address on all chains");
-        console2.log("3. You can now register institutions using: registerInstitution(address admin, string name)");
+        console2.log("1. Verify the contract using the command above");
+        console2.log("2. Register institutions using: registerInstitution(address admin, string name)");
 
         return VeridocsFactoryAddress;
     }
