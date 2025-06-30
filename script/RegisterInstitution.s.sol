@@ -25,9 +25,11 @@ contract RegisterInstitution is Script {
 
         // Institution details
         string memory institutionName = vm.envString("INSTITUTION_NAME");
+        string memory institutionUrl = vm.envString("INSTITUTION_URL");
         address adminAddress = vm.envAddress("ADMIN_ADDRESS");
 
         require(bytes(institutionName).length > 0, "INSTITUTION_NAME environment variable required");
+        require(bytes(institutionUrl).length > 0, "INSTITUTION_URL environment variable required");
         require(adminAddress != address(0), "ADMIN_ADDRESS environment variable required");
 
         VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
@@ -40,6 +42,7 @@ contract RegisterInstitution is Script {
         console2.log("Script runner:", deployer);
         console2.log("Institution admin address:", adminAddress);
         console2.log("Institution name:", institutionName);
+        console2.log("Institution URL:", institutionUrl);
 
         // Verify the deployer is the factory owner
         require(deployer == factoryOwner, "Only factory owner can register institutions");
@@ -48,7 +51,7 @@ contract RegisterInstitution is Script {
         vm.startBroadcast(privateKey);
 
         // Register the institution and get the registry address
-        registryAddress = factory.registerInstitution(adminAddress, institutionName);
+        registryAddress = factory.registerInstitution(adminAddress, institutionName, institutionUrl);
 
         vm.stopBroadcast();
 
@@ -59,6 +62,7 @@ contract RegisterInstitution is Script {
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
         console2.log("Registry admin:", registry.admin());
         console2.log("Registry name:", registry.institutionName());
+        console2.log("Registry URL:", registry.institutionUrl());
         console2.log("Registry agent count:", registry.getAgentCount());
 
         // Verify factory recognizes the registry
@@ -71,10 +75,12 @@ contract RegisterInstitution is Script {
         console2.log("- Factory owner:", owner);
 
         // Show institution details
-        (address admin, string memory name, bool isRegistered) = factory.getInstitutionDetails(registryAddress);
+        (address admin, string memory name, string memory url, bool isRegistered) =
+            factory.getInstitutionDetails(registryAddress);
         console2.log("\nInstitution Details:");
         console2.log("- Admin:", admin);
         console2.log("- Name:", name);
+        console2.log("- URL:", url);
         console2.log("- Is registered:", isRegistered);
 
         console2.log("\nNext steps:");
@@ -84,6 +90,9 @@ contract RegisterInstitution is Script {
         );
         console2.log("3. Anyone can verify documents using: verifyDocument(string cid)");
         console2.log("4. Admin can manage agents using: addAgent(address) and revokeAgent(address)");
+        console2.log(
+            "5. Admin can update institution details using: updateInstitutionName(string) and updateInstitutionUrl(string)"
+        );
 
         return registryAddress;
     }
@@ -94,5 +103,6 @@ contract RegisterInstitution is Script {
 }
 
 // Example usage:
-// INSTITUTION_NAME="University of Example" ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script
+// INSTITUTION_NAME="University of Example" INSTITUTION_URL="https://example.edu"
+// ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script
 // script/RegisterInstitution.s.sol --rpc-url localhost --broadcast

@@ -13,7 +13,7 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  */
 contract AddAgent is Script {
     // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    address constant VERIDOCS_FACTORY_ADDRESS = 0x36FB4c117507a98e780922246860E499Bb7E996C;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 

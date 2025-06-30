@@ -39,10 +39,12 @@ contract VerifyDocument is Script {
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
 
         console2.log("Institution name:", registry.institutionName());
+        console2.log("Institution URL:", registry.institutionUrl());
         console2.log("Registry admin:", registry.admin());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory institutionName) = registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
+            registry.verifyDocument(documentCid);
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);
@@ -50,6 +52,7 @@ contract VerifyDocument is Script {
         if (exists) {
             console2.log("Issued timestamp:", timestamp);
             console2.log("Issuing institution:", institutionName);
+            console2.log("Institution URL:", institutionUrl);
             console2.log("Human readable date:", timestampToDate(timestamp));
 
             // Get full document details
@@ -57,9 +60,11 @@ contract VerifyDocument is Script {
                 ,
                 ,
                 ,
+                ,
                 // bool existsDetails - not needed
                 // uint256 timestampDetails - not needed
                 // string memory institutionNameDetails - not needed
+                // string memory institutionUrlDetails - not needed
                 string memory metadata,
                 address issuedBy
             ) = registry.getDocumentDetails(documentCid);
@@ -75,9 +80,11 @@ contract VerifyDocument is Script {
             else console2.log("Issued by: Unknown (possibly revoked agent)");
 
             console2.log("\n Document is VALID and VERIFIED");
+            console2.log("Verification URL:", institutionUrl);
         } else {
             console2.log("\n Document NOT FOUND or INVALID");
             console2.log("This document was not issued by", institutionName);
+            console2.log("Institution URL:", institutionUrl);
         }
     }
 
