@@ -9,6 +9,7 @@ contract VeridocsRegistry {
     // Institution details
     address public admin;
     string public institutionName;
+    string public institutionUrl;
 
     // Agent management
     mapping(address => bool) public agents;
@@ -38,6 +39,8 @@ contract VeridocsRegistry {
 
     event InstitutionNameUpdated(string oldName, string newName);
 
+    event InstitutionUrlUpdated(string oldUrl, string newUrl);
+
     // Modifiers
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin can call this function");
@@ -58,13 +61,16 @@ contract VeridocsRegistry {
      * @dev Constructor to initialize the registry
      * @param _admin The address of the institution admin
      * @param _name The name of the institution
+     * @param _url The URL associated with the institution
      */
-    constructor(address _admin, string memory _name) {
+    constructor(address _admin, string memory _name, string memory _url) {
         require(_admin != address(0), "Invalid admin address");
         require(bytes(_name).length > 0, "Institution name cannot be empty");
+        require(bytes(_url).length > 0, "Institution URL cannot be empty");
 
         admin = _admin;
         institutionName = _name;
+        institutionUrl = _url;
     }
 
     /**
@@ -151,14 +157,15 @@ contract VeridocsRegistry {
      * @return exists Whether the document exists
      * @return timestamp When the document was issued
      * @return institutionName_ The name of the issuing institution
+     * @return institutionUrl_ The URL of the issuing institution
      */
     function verifyDocument(string memory cid)
         external
         view
-        returns (bool exists, uint256 timestamp, string memory institutionName_)
+        returns (bool exists, uint256 timestamp, string memory institutionName_, string memory institutionUrl_)
     {
         Document memory doc = documents[cid];
-        return (doc.exists, doc.timestamp, institutionName);
+        return (doc.exists, doc.timestamp, institutionName, institutionUrl);
     }
 
     /**
@@ -167,6 +174,7 @@ contract VeridocsRegistry {
      * @return exists Whether the document exists
      * @return timestamp When the document was issued
      * @return institutionName_ The name of the issuing institution
+     * @return institutionUrl_ The URL of the issuing institution
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
@@ -177,12 +185,13 @@ contract VeridocsRegistry {
             bool exists,
             uint256 timestamp,
             string memory institutionName_,
+            string memory institutionUrl_,
             string memory metadata,
             address issuedBy
         )
     {
         Document memory doc = documents[cid];
-        return (doc.exists, doc.timestamp, institutionName, doc.metadata, doc.issuedBy);
+        return (doc.exists, doc.timestamp, institutionName, institutionUrl, doc.metadata, doc.issuedBy);
     }
 
     /**
@@ -196,6 +205,19 @@ contract VeridocsRegistry {
         institutionName = newName;
 
         emit InstitutionNameUpdated(oldName, newName);
+    }
+
+    /**
+     * @dev Update institution URL (only callable by the admin)
+     * @param newUrl The new URL for the institution
+     */
+    function updateInstitutionUrl(string memory newUrl) external onlyAdmin {
+        require(bytes(newUrl).length > 0, "Institution URL cannot be empty");
+
+        string memory oldUrl = institutionUrl;
+        institutionUrl = newUrl;
+
+        emit InstitutionUrlUpdated(oldUrl, newUrl);
     }
 
     /**
@@ -284,26 +306,33 @@ contract VeridocsRegistry {
      * @return Boolean indicating if the contract is valid
      */
     function isValidRegistry() external view returns (bool) {
-        return admin != address(0) && bytes(institutionName).length > 0;
+        return admin != address(0) && bytes(institutionName).length > 0 && bytes(institutionUrl).length > 0;
     }
 
     /**
      * @dev Get registry information
      * @return admin_ The admin address
      * @return institutionName_ The institution name
+     * @return institutionUrl_ The institution URL
      * @return documentCount The total number of documents
      * @return agentCount The total number of active agents
      */
     function getRegistryInfo()
         external
         view
-        returns (address admin_, string memory institutionName_, uint256 documentCount, uint256 agentCount)
+        returns (
+            address admin_,
+            string memory institutionName_,
+            string memory institutionUrl_,
+            uint256 documentCount,
+            uint256 agentCount
+        )
     {
         uint256 activeAgentCount = 0;
         for (uint256 i = 0; i < agentList.length; i++) {
             if (agents[agentList[i]]) activeAgentCount++;
         }
 
-        return (admin, institutionName, documentCids.length, activeAgentCount);
+        return (admin, institutionName, institutionUrl, documentCids.length, activeAgentCount);
     }
 }

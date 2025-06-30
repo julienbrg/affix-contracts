@@ -27,6 +27,10 @@ contract SafeDeploymentTest is Test {
     uint256 public constant POLYGON_CHAIN_ID = 137;
     uint256 public constant OPTIMISM_CHAIN_ID = 10;
 
+    // Test data
+    string constant TEST_INSTITUTION_NAME = "Test University";
+    string constant TEST_INSTITUTION_URL = "https://testuniversity.edu";
+
     // Mock Safe Singleton Factory for testing
     MockSafeSingletonFactory public mockFactory;
 
@@ -148,7 +152,7 @@ contract SafeDeploymentTest is Test {
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
 
-        (bool success,) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
+        (bool success, ) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
         require(success, "Deployment failed");
 
         uint256 gasUsed = gasBefore - gasleft();
@@ -157,7 +161,7 @@ contract SafeDeploymentTest is Test {
         console.log("Gas used for deployment:", gasUsed);
 
         // Gas should be reasonable (increased limit due to Ownable complexity)
-        assertLt(gasUsed, 2_500_000, "Deployment should use reasonable gas");
+        assertLt(gasUsed, 2_600_000, "Deployment should use reasonable gas");
     }
 
     function testFactoryFunctionality() public {
@@ -175,7 +179,7 @@ contract SafeDeploymentTest is Test {
 
         // Factory owner can register institutions
         vm.prank(FACTORY_OWNER);
-        address registryAddress = factory.registerInstitution(ADMIN1, "Test University");
+        address registryAddress = factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
 
         // Verify the institution was registered
         assertTrue(factory.isInstitutionRegistered(registryAddress), "Institution should be registered");
@@ -185,17 +189,19 @@ contract SafeDeploymentTest is Test {
         assertTrue(registryAddress != address(0), "Registry address should not be zero");
 
         // Verify institution details
-        (address admin, string memory institutionName, bool isRegistered) =
-            factory.getInstitutionDetails(registryAddress);
+        (address admin, string memory institutionName, string memory url, bool isRegistered) = factory
+            .getInstitutionDetails(registryAddress);
         assertTrue(isRegistered, "Institution should be registered");
         assertEq(admin, ADMIN1, "Admin should match");
-        assertEq(institutionName, "Test University", "Institution name should match");
+        assertEq(institutionName, TEST_INSTITUTION_NAME, "Institution name should match");
+        assertEq(url, TEST_INSTITUTION_URL, "Institution URL should match");
 
-        console.log("Verified: Deployed factory works correctly");
+        console.log("Verified: Deployed factory works correctly with URL");
         console.log("Factory address:", factoryAddress);
         console.log("Registry address:", registryAddress);
         console.log("Factory owner:", actualOwner);
         console.log("Registry admin:", admin);
+        console.log("Institution URL:", url);
     }
 
     function testFactoryOwnershipAfterDeployment() public {
@@ -209,13 +215,13 @@ contract SafeDeploymentTest is Test {
 
         // Only the actual owner (FACTORY_OWNER) can register institutions
         vm.prank(FACTORY_OWNER);
-        address registryAddress = factory.registerInstitution(ADMIN1, "Test University");
+        address registryAddress = factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
         assertTrue(registryAddress != address(0), "Registry should be deployed");
 
         // Non-owner cannot register institutions
         vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", DEPLOYER1));
         vm.prank(DEPLOYER1);
-        factory.registerInstitution(ADMIN1, "Another University");
+        factory.registerInstitution(ADMIN1, "Another University", "https://another.edu");
 
         console.log("Verified: Factory ownership works correctly");
         console.log("Actual owner:", actualOwner);
@@ -234,7 +240,7 @@ contract SafeDeploymentTest is Test {
 
         // Register an institution using the actual owner (FACTORY_OWNER)
         vm.prank(FACTORY_OWNER);
-        factory.registerInstitution(ADMIN1, "Test University");
+        factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
 
         // Check updated stats
         (totalInstitutions, factoryOwner) = factory.getFactoryStats();
@@ -262,11 +268,7 @@ contract SafeDeploymentTest is Test {
         address deployer,
         bytes32 salt,
         bytes32 bytecodeHash
-    )
-        internal
-        pure
-        returns (address)
-    {
+    ) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 }
@@ -280,7 +282,7 @@ contract MockSafeSingletonFactory {
     mapping(bytes32 => address) public deployedContracts;
 
     // Add receive function to handle plain ether transfers
-    receive() external payable { }
+    receive() external payable {}
 
     /**
      * @notice Simulates CREATE2 deployment
@@ -319,7 +321,9 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) { revert(0, 0) }
+            if iszero(deployedAddress) {
+                revert(0, 0)
+            }
         }
 
         // Store deployment

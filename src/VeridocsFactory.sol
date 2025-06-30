@@ -17,7 +17,9 @@ contract VeridocsFactory is Ownable {
     mapping(address => bool) public isValidRegistry;
 
     // Events
-    event InstitutionRegistered(address indexed admin, address indexed contractAddress, string institutionName);
+    event InstitutionRegistered(
+        address indexed admin, address indexed contractAddress, string institutionName, string url
+    );
 
     /**
      * @dev Constructor - sets the specified address as the owner
@@ -31,12 +33,14 @@ contract VeridocsFactory is Ownable {
      * @dev Register a new institution and deploy their VeridocsRegistry contract
      * @param admin The address that will be the admin of the new registry
      * @param name The name of the institution
+     * @param url The URL associated with the institution (e.g., website, verification portal)
      * @notice Only the factory owner can register new institutions
      * @return registryAddress The address of the newly deployed registry
      */
     function registerInstitution(
         address admin,
-        string memory name
+        string memory name,
+        string memory url
     )
         external
         onlyOwner
@@ -44,16 +48,17 @@ contract VeridocsFactory is Ownable {
     {
         require(admin != address(0), "Invalid admin address");
         require(bytes(name).length > 0, "Institution name cannot be empty");
+        require(bytes(url).length > 0, "Institution URL cannot be empty");
 
         // Deploy new VeridocsRegistry contract
-        VeridocsRegistry newRegistry = new VeridocsRegistry(admin, name);
+        VeridocsRegistry newRegistry = new VeridocsRegistry(admin, name, url);
         registryAddress = address(newRegistry);
 
         // Update tracking
         deployedRegistries.push(registryAddress);
         isValidRegistry[registryAddress] = true;
 
-        emit InstitutionRegistered(admin, registryAddress, name);
+        emit InstitutionRegistered(admin, registryAddress, name, url);
     }
 
     /**
@@ -92,22 +97,24 @@ contract VeridocsFactory is Ownable {
     }
 
     /**
-     * @dev Get institution details including name and admin
+     * @dev Get institution details including name, admin, and URL
      * @param registryAddress The registry contract address
      * @return admin The admin address of the registry
      * @return institutionName The name of the institution
+     * @return url The URL of the institution
      * @return isRegistered Whether the registry is registered with this factory
      */
     function getInstitutionDetails(address registryAddress)
         external
         view
-        returns (address admin, string memory institutionName, bool isRegistered)
+        returns (address admin, string memory institutionName, string memory url, bool isRegistered)
     {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
             VeridocsRegistry registry = VeridocsRegistry(registryAddress);
             admin = registry.admin();
             institutionName = registry.institutionName();
+            url = registry.institutionUrl();
         }
     }
 

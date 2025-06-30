@@ -44,6 +44,7 @@ contract IssueDocument is Script {
         // Get registry details
         VeridocsRegistry registry = VeridocsRegistry(registryAddress);
         console2.log("Institution name:", registry.institutionName());
+        console2.log("Institution URL:", registry.institutionUrl());
         console2.log("Registry admin:", registry.admin());
 
         // Check if issuer can issue documents
@@ -72,21 +73,17 @@ contract IssueDocument is Script {
         vm.stopBroadcast();
 
         // Verify the document was issued
-        (bool exists, uint256 timestamp, string memory institutionName) = registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
+            registry.verifyDocument(documentCid);
 
         // Get full document details
-        (
-            bool existsDetails,
-            uint256 timestampDetails,
-            string memory institutionNameDetails,
-            string memory metadataDetails,
-            address issuedBy
-        ) = registry.getDocumentDetails(documentCid);
+        (,,,, string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
 
         console2.log("\nDocument verification:");
         console2.log("- Exists:", exists);
         console2.log("- Timestamp:", timestamp);
         console2.log("- Institution:", institutionName);
+        console2.log("- Institution URL:", institutionUrl);
         console2.log("- Metadata:", metadataDetails);
         console2.log("- Issued by:", issuedBy);
         console2.log("- Registry contract:", registryAddress);
