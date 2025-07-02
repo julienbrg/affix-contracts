@@ -83,9 +83,8 @@ contract RegisterInstitution is Script {
         console2.log("- Factory owner:", owner);
 
         // Show institution details
-        (address admin, string memory name, string memory url, bool isRegistered) = factory.getInstitutionDetails(
-            registryAddress
-        );
+        (address admin, string memory name, string memory url, bool isRegistered) =
+            factory.getInstitutionDetails(registryAddress);
         console2.log("\nInstitution Details:");
         console2.log("- Admin:", admin);
         console2.log("- Name:", name);
@@ -123,14 +122,14 @@ contract RegisterInstitution is Script {
         if (chainId == 1) return "Ethereum Mainnet";
         if (chainId == 11_155_111) return "Sepolia Testnet";
         if (chainId == 137) return "Polygon Mainnet";
-        if (chainId == 80001) return "Polygon Mumbai";
+        if (chainId == 80_001) return "Polygon Mumbai";
         if (chainId == 10) return "Optimism Mainnet";
         if (chainId == 420) return "Optimism Goerli";
-        if (chainId == 42161) return "Arbitrum One";
-        if (chainId == 421613) return "Arbitrum Goerli";
+        if (chainId == 42_161) return "Arbitrum One";
+        if (chainId == 421_613) return "Arbitrum Goerli";
         if (chainId == 8453) return "Base Mainnet";
-        if (chainId == 84531) return "Base Goerli";
-        if (chainId == 314159) return "Filecoin Calibration";
+        if (chainId == 84_531) return "Base Goerli";
+        if (chainId == 314_159) return "Filecoin Calibration";
         if (chainId == 314) return "Filecoin Mainnet";
         return "Unknown Network";
     }
@@ -144,21 +143,21 @@ contract RegisterInstitution is Script {
             return string(abi.encodePacked("https://sepolia.etherscan.io/address/", addressStr));
         } else if (chainId == 137) {
             return string(abi.encodePacked("https://polygonscan.com/address/", addressStr));
-        } else if (chainId == 80001) {
+        } else if (chainId == 80_001) {
             return string(abi.encodePacked("https://mumbai.polygonscan.com/address/", addressStr));
         } else if (chainId == 10) {
             return string(abi.encodePacked("https://optimistic.etherscan.io/address/", addressStr));
         } else if (chainId == 420) {
             return string(abi.encodePacked("https://goerli-optimism.etherscan.io/address/", addressStr));
-        } else if (chainId == 42161) {
+        } else if (chainId == 42_161) {
             return string(abi.encodePacked("https://arbiscan.io/address/", addressStr));
-        } else if (chainId == 421613) {
+        } else if (chainId == 421_613) {
             return string(abi.encodePacked("https://goerli.arbiscan.io/address/", addressStr));
         } else if (chainId == 8453) {
             return string(abi.encodePacked("https://basescan.org/address/", addressStr));
-        } else if (chainId == 84531) {
+        } else if (chainId == 84_531) {
             return string(abi.encodePacked("https://goerli.basescan.org/address/", addressStr));
-        } else if (chainId == 314159) {
+        } else if (chainId == 314_159) {
             return string(abi.encodePacked("https://calibration.filscan.io/address/", addressStr));
         } else if (chainId == 314) {
             return string(abi.encodePacked("https://filscan.io/address/", addressStr));

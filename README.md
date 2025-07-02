@@ -48,9 +48,11 @@ Deploying to Filecoin Calibration testnet requires special configuration due to 
 
 ### Prerequisites
 
-1. **Get Calibration testnet funds**: Visit the [Calibration Faucet](https://faucet.calibration.fildev.network/) and request tFIL for your deployer address.
+1. **Get Calibration testnet funds**: Visit the [Calibration Faucet](https://faucet.calibration.fildev.network/) and
+   request tFIL for your deployer address.
 
 2. **Set environment variables**:
+
 ```bash
 export PRIVATE_KEY="your_private_key_here"
 export INSTITUTION_NAME="Your Institution Name"
@@ -132,11 +134,14 @@ forge script script/IssueDocument.s.sol \
 
 ### Troubleshooting
 
-**Gas Estimation Errors**: If you see "GasLimit field cannot be less than the cost of storing a message on chain", increase the gas limit and add `--skip-simulation`.
+**Gas Estimation Errors**: If you see "GasLimit field cannot be less than the cost of storing a message on chain",
+increase the gas limit and add `--skip-simulation`.
 
-**EIP-3855 Warnings**: This warning about PUSH0 opcode is expected on Filecoin. Using `--evm-version paris` resolves compatibility issues.
+**EIP-3855 Warnings**: This warning about PUSH0 opcode is expected on Filecoin. Using `--evm-version paris` resolves
+compatibility issues.
 
-**Contract Not Found**: Ensure the factory deployed successfully by checking the transaction hash on [Calibration FilScan](https://calibration.filscan.io/).
+**Contract Not Found**: Ensure the factory deployed successfully by checking the transaction hash on
+[Calibration FilScan](https://calibration.filscan.io/).
 
 ### Send some funds
 

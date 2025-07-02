@@ -122,9 +122,7 @@ contract DeployVeridocsFactory is Script {
         console2.log("- Salt used:", vm.toString(SALT));
         console2.log("- Explorer URL:", getExplorerUrl(chainId, VeridocsFactoryAddress));
 
-        if (isFilecoinNetwork(chainId)) {
-            console2.log("- Gas settings: Optimized for Filecoin network");
-        }
+        if (isFilecoinNetwork(chainId)) console2.log("- Gas settings: Optimized for Filecoin network");
 
         console2.log("\nNext steps:");
         console2.log("1. Register institutions using: registerInstitution(address admin, string name, string url)");
@@ -138,10 +136,9 @@ contract DeployVeridocsFactory is Script {
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
-        return
-            address(
-                uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
-            );
+        return address(
+            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
+        );
     }
 
     function bytesToAddress(bytes memory data) internal pure returns (address) {
