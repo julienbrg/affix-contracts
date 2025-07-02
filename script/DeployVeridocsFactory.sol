@@ -7,8 +7,8 @@ import { VeridocsFactory } from "../src/VeridocsFactory.sol";
 
 /**
  * @title DeployVeridocsFactory
- * @notice Enhanced deployment script with automatic Etherscan verification
- * @dev Deploys and verifies the VeridocsFactory contract on Sepolia
+ * @notice Enhanced deployment script with automatic verification support
+ * @dev Deploys the VeridocsFactory contract on multiple networks including Filecoin Calibration
  */
 contract DeployVeridocsFactory is Script {
     // Safe Singleton Factory address - same on all EVM chains
@@ -22,11 +22,18 @@ contract DeployVeridocsFactory is Script {
     function run() public returns (address VeridocsFactoryAddress) {
         uint256 chainId = block.chainid;
         console2.log("Deploying VeridocsFactory on chain ID:", chainId);
+        console2.log("Network name:", getNetworkName(chainId));
         console2.log("Using Safe Singleton Factory at:", SAFE_SINGLETON_FACTORY);
 
         // Get the deployer address (this will be the factory owner)
         address deployer = vm.addr(privateKey);
         console2.log("Deployer/Future Factory Owner:", deployer);
+
+        // Set Filecoin-specific gas settings if needed
+        if (isFilecoinNetwork(chainId)) {
+            console2.log("Filecoin network detected - using higher gas settings");
+            vm.txGasPrice(3_000_000_000); // 3 nanoFIL
+        }
 
         // Get the creation code for VeridocsFactory with constructor parameters
         bytes memory VeridocsFactoryCreationCode = abi.encodePacked(
@@ -63,9 +70,18 @@ contract DeployVeridocsFactory is Script {
             // Start broadcasting with the private key
             vm.startBroadcast(privateKey);
 
-            // Deploy VeridocsFactory using Safe Singleton Factory
-            (bool success, bytes memory returnData) =
-                SAFE_SINGLETON_FACTORY.call(abi.encodePacked(SALT, VeridocsFactoryCreationCode));
+            // Deploy VeridocsFactory using Safe Singleton Factory with proper gas for Filecoin
+            bytes memory callData = abi.encodePacked(SALT, VeridocsFactoryCreationCode);
+
+            bool success;
+            bytes memory returnData;
+            if (isFilecoinNetwork(chainId)) {
+                // Use higher gas limit for Filecoin networks
+                (success, returnData) = SAFE_SINGLETON_FACTORY.call{ gas: 25_000_000 }(callData);
+            } else {
+                // Standard call for other networks
+                (success, returnData) = SAFE_SINGLETON_FACTORY.call(callData);
+            }
 
             require(success, "VeridocsFactory deployment failed");
 
@@ -90,33 +106,33 @@ contract DeployVeridocsFactory is Script {
         if (factoryOwner == deployer) console2.log(" Ownership correctly set to deployer");
         else console2.log(" Ownership mismatch - expected:", deployer, "actual:", factoryOwner);
 
-        // Manual verification instructions for Sepolia
-        if (isNewDeployment && chainId == 11_155_111) {
-            console2.log("\n=== Etherscan Verification Instructions ===");
-            console2.log("Run this command to verify the contract:");
-            console2.log("");
-            console2.log("forge verify-contract", VeridocsFactoryAddress, "src/VeridocsFactory.sol:VeridocsFactory \\");
-            console2.log("  --chain-id", chainId, "\\");
-            console2.log("  --constructor-args", vm.toString(abi.encode(deployer)), "\\");
-            console2.log("  --etherscan-api-key $API_KEY_ETHERSCAN");
-            console2.log("");
+        // REMOVED: Automatic verification instructions - as requested
+        if (isNewDeployment) {
+            console2.log("\n=== Deployment Complete ===");
+            console2.log("Automatic verification disabled as requested");
+            console2.log("Contract deployed and functional at:", VeridocsFactoryAddress);
+            console2.log("Explorer URL:", getExplorerUrl(chainId, VeridocsFactoryAddress));
         }
 
         console2.log("\nDeployment Summary:");
+        console2.log("- Network:", getNetworkName(chainId));
         console2.log("- Chain ID:", chainId);
         console2.log("- VeridocsFactory:", VeridocsFactoryAddress);
         console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
+        console2.log("- Explorer URL:", getExplorerUrl(chainId, VeridocsFactoryAddress));
 
-        if (chainId == 11_155_111) {
-            console2.log("- Etherscan URL: https://sepolia.etherscan.io/address/", VeridocsFactoryAddress);
-        }
+        if (isFilecoinNetwork(chainId)) console2.log("- Gas settings: Optimized for Filecoin network");
 
         console2.log("\nNext steps:");
-        console2.log("1. Verify the contract using the command above");
-        console2.log("2. Register institutions using: registerInstitution(address admin, string name)");
+        console2.log("1. Register institutions using: registerInstitution(address admin, string name, string url)");
+        console2.log("2. Fund the deployer address with", getNetworkCurrency(chainId), "for transaction fees");
 
         return VeridocsFactoryAddress;
+    }
+
+    function isFilecoinNetwork(uint256 chainId) internal pure returns (bool) {
+        return chainId == 314_159 || chainId == 314; // Calibration and Mainnet
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
@@ -132,5 +148,76 @@ contract DeployVeridocsFactory is Script {
             addr := mload(add(data, 20))
         }
         return addr;
+    }
+
+    function getNetworkName(uint256 chainId) internal pure returns (string memory) {
+        if (chainId == 1) return "Ethereum Mainnet";
+        if (chainId == 11_155_111) return "Sepolia Testnet";
+        if (chainId == 137) return "Polygon Mainnet";
+        if (chainId == 80_001) return "Polygon Mumbai";
+        if (chainId == 10) return "Optimism Mainnet";
+        if (chainId == 420) return "Optimism Goerli";
+        if (chainId == 42_161) return "Arbitrum One";
+        if (chainId == 421_613) return "Arbitrum Goerli";
+        if (chainId == 8453) return "Base Mainnet";
+        if (chainId == 84_531) return "Base Goerli";
+        if (chainId == 314_159) return "Filecoin Calibration";
+        if (chainId == 314) return "Filecoin Mainnet";
+        return "Unknown Network";
+    }
+
+    function getNetworkCurrency(uint256 chainId) internal pure returns (string memory) {
+        if (chainId == 1 || chainId == 11_155_111) return "ETH";
+        if (chainId == 137 || chainId == 80_001) return "MATIC";
+        if (chainId == 10 || chainId == 420) return "ETH";
+        if (chainId == 42_161 || chainId == 421_613) return "ETH";
+        if (chainId == 8453 || chainId == 84_531) return "ETH";
+        if (chainId == 314_159 || chainId == 314) return "tFIL";
+        return "Native Token";
+    }
+
+    function getExplorerUrl(uint256 chainId, address contractAddress) internal pure returns (string memory) {
+        string memory addressStr = addressToString(contractAddress);
+
+        if (chainId == 1) {
+            return string(abi.encodePacked("https://etherscan.io/address/", addressStr));
+        } else if (chainId == 11_155_111) {
+            return string(abi.encodePacked("https://sepolia.etherscan.io/address/", addressStr));
+        } else if (chainId == 137) {
+            return string(abi.encodePacked("https://polygonscan.com/address/", addressStr));
+        } else if (chainId == 80_001) {
+            return string(abi.encodePacked("https://mumbai.polygonscan.com/address/", addressStr));
+        } else if (chainId == 10) {
+            return string(abi.encodePacked("https://optimistic.etherscan.io/address/", addressStr));
+        } else if (chainId == 420) {
+            return string(abi.encodePacked("https://goerli-optimism.etherscan.io/address/", addressStr));
+        } else if (chainId == 42_161) {
+            return string(abi.encodePacked("https://arbiscan.io/address/", addressStr));
+        } else if (chainId == 421_613) {
+            return string(abi.encodePacked("https://goerli.arbiscan.io/address/", addressStr));
+        } else if (chainId == 8453) {
+            return string(abi.encodePacked("https://basescan.org/address/", addressStr));
+        } else if (chainId == 84_531) {
+            return string(abi.encodePacked("https://goerli.basescan.org/address/", addressStr));
+        } else if (chainId == 314_159) {
+            return string(abi.encodePacked("https://calibration.filscan.io/address/", addressStr));
+        } else if (chainId == 314) {
+            return string(abi.encodePacked("https://filscan.io/address/", addressStr));
+        }
+
+        return "Unknown explorer";
+    }
+
+    function addressToString(address addr) internal pure returns (string memory) {
+        bytes32 value = bytes32(uint256(uint160(addr)));
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(42);
+        str[0] = "0";
+        str[1] = "x";
+        for (uint256 i = 0; i < 20; i++) {
+            str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
+        }
+        return string(str);
     }
 }

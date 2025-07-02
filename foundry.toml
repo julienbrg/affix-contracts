@@ -22,7 +22,7 @@
   verbosity = 4
 
 [etherscan]
-  mainnet = { key = "${API_KEY_ETHERSCAN}" }
+  sepolia = { key = "${API_KEY_ETHERSCAN}" }
 
 [fmt]
   bracket_spacing = true
@@ -47,6 +47,7 @@
   optimism = "https://optimism-rpc.publicnode.com"
   polygon = "https://polygon-bor-rpc.publicnode.com"
   sepolia = "https://ethereum-sepolia-rpc.publicnode.com"
+  filecoin_calibration = "https://api.calibration.node.glif.io/rpc/v1"
 
   op = "http://127.0.0.1:9545"
   base = "http://127.0.0.1:9546"
