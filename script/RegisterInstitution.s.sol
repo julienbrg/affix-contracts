@@ -13,14 +13,15 @@ import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
  * @notice Only the factory owner can register new institutions
  */
 contract RegisterInstitution is Script {
-    // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    // UPDATED: Filecoin Calibration VeridocsFactory address
+    address constant VERIDOCS_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
     function run() public returns (address registryAddress) {
         uint256 chainId = block.chainid;
         console2.log("Registering institution on chain ID:", chainId);
+        console2.log("Network:", getNetworkName(chainId));
         console2.log("Using VeridocsFactory at:", VERIDOCS_FACTORY_ADDRESS);
 
         // Institution details
@@ -31,6 +32,13 @@ contract RegisterInstitution is Script {
         require(bytes(institutionName).length > 0, "INSTITUTION_NAME environment variable required");
         require(bytes(institutionUrl).length > 0, "INSTITUTION_URL environment variable required");
         require(adminAddress != address(0), "ADMIN_ADDRESS environment variable required");
+
+        // Check if factory exists at expected address
+        uint256 factoryCodeSize;
+        assembly {
+            factoryCodeSize := extcodesize(VERIDOCS_FACTORY_ADDRESS)
+        }
+        require(factoryCodeSize > 0, "VeridocsFactory not deployed at expected address. Please deploy factory first.");
 
         VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
 
@@ -75,13 +83,19 @@ contract RegisterInstitution is Script {
         console2.log("- Factory owner:", owner);
 
         // Show institution details
-        (address admin, string memory name, string memory url, bool isRegistered) =
-            factory.getInstitutionDetails(registryAddress);
+        (address admin, string memory name, string memory url, bool isRegistered) = factory.getInstitutionDetails(
+            registryAddress
+        );
         console2.log("\nInstitution Details:");
         console2.log("- Admin:", admin);
         console2.log("- Name:", name);
         console2.log("- URL:", url);
         console2.log("- Is registered:", isRegistered);
+
+        // Show network-specific explorer links
+        console2.log("\nExplorer Links:");
+        console2.log("- Factory:", getExplorerUrl(chainId, VERIDOCS_FACTORY_ADDRESS));
+        console2.log("- Registry:", getExplorerUrl(chainId, registryAddress));
 
         console2.log("\nNext steps:");
         console2.log("1. The admin can add agents using: addAgent(address agent)");
@@ -94,15 +108,75 @@ contract RegisterInstitution is Script {
             "5. Admin can update institution details using: updateInstitutionName(string) and updateInstitutionUrl(string)"
         );
 
+        console2.log("\nEnvironment variables for next scripts:");
+        console2.log("export REGISTRY_ADDRESS=", registryAddress);
+        console2.log("export ADMIN_ADDRESS=", adminAddress);
+
         return registryAddress;
     }
 
     function assertTrue(bool condition, string memory message) internal pure {
         require(condition, message);
     }
-}
 
-// Example usage:
-// INSTITUTION_NAME="University of Example" INSTITUTION_URL="https://example.edu"
-// ADMIN_ADDRESS="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" forge script
-// script/RegisterInstitution.s.sol --rpc-url localhost --broadcast
+    function getNetworkName(uint256 chainId) internal pure returns (string memory) {
+        if (chainId == 1) return "Ethereum Mainnet";
+        if (chainId == 11_155_111) return "Sepolia Testnet";
+        if (chainId == 137) return "Polygon Mainnet";
+        if (chainId == 80001) return "Polygon Mumbai";
+        if (chainId == 10) return "Optimism Mainnet";
+        if (chainId == 420) return "Optimism Goerli";
+        if (chainId == 42161) return "Arbitrum One";
+        if (chainId == 421613) return "Arbitrum Goerli";
+        if (chainId == 8453) return "Base Mainnet";
+        if (chainId == 84531) return "Base Goerli";
+        if (chainId == 314159) return "Filecoin Calibration";
+        if (chainId == 314) return "Filecoin Mainnet";
+        return "Unknown Network";
+    }
+
+    function getExplorerUrl(uint256 chainId, address contractAddress) internal pure returns (string memory) {
+        string memory addressStr = addressToString(contractAddress);
+
+        if (chainId == 1) {
+            return string(abi.encodePacked("https://etherscan.io/address/", addressStr));
+        } else if (chainId == 11_155_111) {
+            return string(abi.encodePacked("https://sepolia.etherscan.io/address/", addressStr));
+        } else if (chainId == 137) {
+            return string(abi.encodePacked("https://polygonscan.com/address/", addressStr));
+        } else if (chainId == 80001) {
+            return string(abi.encodePacked("https://mumbai.polygonscan.com/address/", addressStr));
+        } else if (chainId == 10) {
+            return string(abi.encodePacked("https://optimistic.etherscan.io/address/", addressStr));
+        } else if (chainId == 420) {
+            return string(abi.encodePacked("https://goerli-optimism.etherscan.io/address/", addressStr));
+        } else if (chainId == 42161) {
+            return string(abi.encodePacked("https://arbiscan.io/address/", addressStr));
+        } else if (chainId == 421613) {
+            return string(abi.encodePacked("https://goerli.arbiscan.io/address/", addressStr));
+        } else if (chainId == 8453) {
+            return string(abi.encodePacked("https://basescan.org/address/", addressStr));
+        } else if (chainId == 84531) {
+            return string(abi.encodePacked("https://goerli.basescan.org/address/", addressStr));
+        } else if (chainId == 314159) {
+            return string(abi.encodePacked("https://calibration.filscan.io/address/", addressStr));
+        } else if (chainId == 314) {
+            return string(abi.encodePacked("https://filscan.io/address/", addressStr));
+        }
+
+        return "Unknown explorer";
+    }
+
+    function addressToString(address addr) internal pure returns (string memory) {
+        bytes32 value = bytes32(uint256(uint160(addr)));
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(42);
+        str[0] = "0";
+        str[1] = "x";
+        for (uint256 i = 0; i < 20; i++) {
+            str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
+        }
+        return string(str);
+    }
+}
