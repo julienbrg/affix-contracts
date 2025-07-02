@@ -2,6 +2,9 @@
 
 Verify document authenticity.
 
+- UI repo: https://github.com/julienbrg/veridocs-ui
+- Live demo: https://veridocs-ui.vercel.app/
+
 ### Install
 
 ```bash
