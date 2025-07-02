@@ -38,7 +38,7 @@ contract RegisterInstitution is Script {
         assembly {
             factoryCodeSize := extcodesize(VERIDOCS_FACTORY_ADDRESS)
         }
-        require(factoryCodeSize > 0, "VeridocsFactory not deployed at expected address. Please deploy factory first.");
+        require(factoryCodeSize > 0, "Please deploy factory first.");
 
         VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
 
