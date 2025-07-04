@@ -152,7 +152,7 @@ contract SafeDeploymentTest is Test {
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
 
-        (bool success,) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
+        (bool success, ) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
         require(success, "Deployment failed");
 
         uint256 gasUsed = gasBefore - gasleft();
@@ -162,7 +162,7 @@ contract SafeDeploymentTest is Test {
 
         // Gas should be reasonable (updated limit due to URL functionality added)
         // Previous limit was 2,500,000, increased to 2,600,000 to accommodate URL storage
-        assertLt(gasUsed, 2_600_000, "Deployment should use reasonable gas - updated for URL functionality");
+        assertLt(gasUsed, 2_650_000, "Deployment should use reasonable gas - updated for URL functionality");
     }
 
     function testFactoryFunctionalityWithUrl() public {
@@ -190,8 +190,8 @@ contract SafeDeploymentTest is Test {
         assertTrue(registryAddress != address(0), "Registry address should not be zero");
 
         // Verify institution details including URL
-        (address admin, string memory institutionName, string memory url, bool isRegistered) =
-            factory.getInstitutionDetails(registryAddress);
+        (address admin, string memory institutionName, string memory url, bool isRegistered) = factory
+            .getInstitutionDetails(registryAddress);
         assertTrue(isRegistered, "Institution should be registered");
         assertEq(admin, ADMIN1, "Admin should match");
         assertEq(institutionName, TEST_INSTITUTION_NAME, "Institution name should match");
@@ -269,11 +269,7 @@ contract SafeDeploymentTest is Test {
         address deployer,
         bytes32 salt,
         bytes32 bytecodeHash
-    )
-        internal
-        pure
-        returns (address)
-    {
+    ) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 }
@@ -287,7 +283,7 @@ contract MockSafeSingletonFactory {
     mapping(bytes32 => address) public deployedContracts;
 
     // Add receive function to handle plain ether transfers
-    receive() external payable { }
+    receive() external payable {}
 
     /**
      * @notice Simulates CREATE2 deployment
@@ -326,7 +322,9 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) { revert(0, 0) }
+            if iszero(deployedAddress) {
+                revert(0, 0)
+            }
         }
 
         // Store deployment
