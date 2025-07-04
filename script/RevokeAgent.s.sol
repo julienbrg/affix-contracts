@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
-import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
+import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title RevokeAgent
- * @notice Script to revoke an agent from an institution's VeridocsRegistry
+ * @notice Script to revoke an agent from an institution's AffixRegistry
  * @dev The caller must be the registered admin of the institution
  */
 contract RevokeAgent is Script {
-    // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
+    // Expected AffixFactory address (same across all chains)
+    address constant AFFIX_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -28,7 +28,7 @@ contract RevokeAgent is Script {
         require(agentAddress != address(0), "AGENT_ADDRESS environment variable required");
         require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
-        VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
+        AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
         // Get the caller address (should be the admin)
         address caller = vm.addr(privateKey);
@@ -40,7 +40,7 @@ contract RevokeAgent is Script {
         require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details and verify caller is admin
-        VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(registryAddress);
         address registryAdmin = registry.admin();
 
         console2.log("Registry admin:", registryAdmin);

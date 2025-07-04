@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 /**
- * @title VeridocsRegistry
+ * @title AffixRegistry
  * @dev Registry contract for managing documents issued by a specific institution
  */
-contract VeridocsRegistry {
+contract AffixRegistry {
     // Institution details
     address public admin;
     string public institutionName;

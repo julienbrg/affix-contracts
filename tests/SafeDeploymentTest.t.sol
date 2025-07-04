@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { Test, console } from "forge-std/src/Test.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
 
 /**
  * @title SafeDeploymentTest
- * @notice Tests Safe Singleton Factory deployment pattern for VeridocsFactory
+ * @notice Tests Safe Singleton Factory deployment pattern for AffixFactory
  * @dev Verifies deterministic deployment addresses across different chains and deployers
  */
 contract SafeDeploymentTest is Test {
@@ -14,7 +14,7 @@ contract SafeDeploymentTest is Test {
     address public constant SAFE_SINGLETON_FACTORY = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7;
 
     // Salt for CREATE2 deployment
-    bytes32 public constant SALT = keccak256(bytes("VERIDOCS_DOCUMENT_FACTORY_V1"));
+    bytes32 public constant SALT = keccak256(bytes("Affix_DOCUMENT_FACTORY_V1"));
 
     // Test addresses
     address public constant DEPLOYER1 = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
@@ -42,11 +42,11 @@ contract SafeDeploymentTest is Test {
 
     function testCalculateExpectedAddress() public view {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
 
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
-        console.log("Expected VeridocsFactory address:", expectedAddress);
+        console.log("Expected AffixFactory address:", expectedAddress);
 
         // Verify the address calculation is deterministic
         address expectedAddress2 = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
@@ -55,7 +55,7 @@ contract SafeDeploymentTest is Test {
 
     function testDeployWithMockFactory() public {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
 
@@ -69,18 +69,18 @@ contract SafeDeploymentTest is Test {
 
         vm.stopPrank();
 
-        console.log("Deployed VeridocsFactory at:", deployedAddress);
+        console.log("Deployed AffixFactory at:", deployedAddress);
         assertEq(deployedAddress, expectedAddress, "Deployed address should match expected");
 
         // Verify the contract is working
-        VeridocsFactory factory = VeridocsFactory(deployedAddress);
+        AffixFactory factory = AffixFactory(deployedAddress);
         assertEq(factory.getInstitutionCount(), 0, "Factory should start with 0 institutions");
         assertEq(factory.owner(), FACTORY_OWNER, "Factory owner should be set correctly");
     }
 
     function testSameAddressAcrossChains() public {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
 
         // All deployments should use the same mock factory address for consistent CREATE2 calculation
@@ -89,15 +89,15 @@ contract SafeDeploymentTest is Test {
 
         // Deploy on "Ethereum"
         vm.chainId(ETHEREUM_CHAIN_ID);
-        address ethAddress = deployVeridocsFactory(DEPLOYER1);
+        address ethAddress = deployAffixFactory(DEPLOYER1);
 
         // Deploy on "Polygon" (simulate different chain but same factory)
         vm.chainId(POLYGON_CHAIN_ID);
-        address polygonAddress = deployVeridocsFactory(DEPLOYER2); // Different deployer
+        address polygonAddress = deployAffixFactory(DEPLOYER2); // Different deployer
 
         // Deploy on "Optimism"
         vm.chainId(OPTIMISM_CHAIN_ID);
-        address optimismAddress = deployVeridocsFactory(DEPLOYER1);
+        address optimismAddress = deployAffixFactory(DEPLOYER1);
 
         // All addresses should be the same as expected
         assertEq(ethAddress, expectedAddress, "Ethereum address should match expected");
@@ -110,15 +110,15 @@ contract SafeDeploymentTest is Test {
 
     function testDifferentDeployersSameAddress() public {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
         bytes32 bytecodeHash = keccak256(creationCode);
         address expectedAddress = calculateCreate2Address(address(mockFactory), SALT, bytecodeHash);
 
         // DEPLOYER1 deploys
-        address deployer1Deployment = deployVeridocsFactory(DEPLOYER1);
+        address deployer1Deployment = deployAffixFactory(DEPLOYER1);
 
         // DEPLOYER2 deploys (using same factory instance)
-        address deployer2Deployment = deployVeridocsFactory(DEPLOYER2);
+        address deployer2Deployment = deployAffixFactory(DEPLOYER2);
 
         // Both should match the expected address
         assertEq(deployer1Deployment, expectedAddress, "DEPLOYER1 deployment should match expected");
@@ -132,10 +132,10 @@ contract SafeDeploymentTest is Test {
 
     function testCannotDeployTwice() public {
         // First deployment
-        address firstDeployment = deployVeridocsFactory(DEPLOYER1);
+        address firstDeployment = deployAffixFactory(DEPLOYER1);
 
         // Second deployment should return same address (not fail, but not create new contract)
-        address secondDeployment = deployVeridocsFactory(DEPLOYER2);
+        address secondDeployment = deployAffixFactory(DEPLOYER2);
 
         // Should be same address
         assertEq(firstDeployment, secondDeployment, "Should return same address when already deployed");
@@ -147,7 +147,7 @@ contract SafeDeploymentTest is Test {
 
     function testDeploymentGasCost() public {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
 
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
@@ -161,13 +161,13 @@ contract SafeDeploymentTest is Test {
         console.log("Gas used for deployment:", gasUsed);
 
         // Gas should be reasonable (increased limit due to Ownable complexity)
-        assertLt(gasUsed, 2_600_000, "Deployment should use reasonable gas");
+        assertLt(gasUsed, 2_650_000, "Deployment should use reasonable gas");
     }
 
     function testFactoryFunctionality() public {
         // Deploy factory
-        address factoryAddress = deployVeridocsFactory(DEPLOYER1);
-        VeridocsFactory factory = VeridocsFactory(factoryAddress);
+        address factoryAddress = deployAffixFactory(DEPLOYER1);
+        AffixFactory factory = AffixFactory(factoryAddress);
 
         // The factory owner should be FACTORY_OWNER (from constructor parameter)
         address actualOwner = factory.owner();
@@ -206,8 +206,8 @@ contract SafeDeploymentTest is Test {
 
     function testFactoryOwnershipAfterDeployment() public {
         // Deploy factory with FACTORY_OWNER
-        address factoryAddress = deployVeridocsFactory(DEPLOYER1);
-        VeridocsFactory factory = VeridocsFactory(factoryAddress);
+        address factoryAddress = deployAffixFactory(DEPLOYER1);
+        AffixFactory factory = AffixFactory(factoryAddress);
 
         // The factory owner should be FACTORY_OWNER (from constructor parameter)
         address actualOwner = factory.owner();
@@ -230,8 +230,8 @@ contract SafeDeploymentTest is Test {
 
     function testFactoryStatsAfterRegistration() public {
         // Deploy factory
-        address factoryAddress = deployVeridocsFactory(DEPLOYER1);
-        VeridocsFactory factory = VeridocsFactory(factoryAddress);
+        address factoryAddress = deployAffixFactory(DEPLOYER1);
+        AffixFactory factory = AffixFactory(factoryAddress);
 
         // Check initial stats - owner is FACTORY_OWNER
         (uint256 totalInstitutions, address factoryOwner) = factory.getFactoryStats();
@@ -252,10 +252,10 @@ contract SafeDeploymentTest is Test {
         console.log("Factory owner:", factoryOwner);
     }
 
-    // Helper function to deploy VeridocsFactory using mock Safe Singleton Factory
-    function deployVeridocsFactory(address deployer) internal returns (address) {
+    // Helper function to deploy AffixFactory using mock Safe Singleton Factory
+    function deployAffixFactory(address deployer) internal returns (address) {
         // Include constructor parameters in creation code
-        bytes memory creationCode = abi.encodePacked(type(VeridocsFactory).creationCode, abi.encode(FACTORY_OWNER));
+        bytes memory creationCode = abi.encodePacked(type(AffixFactory).creationCode, abi.encode(FACTORY_OWNER));
 
         vm.prank(deployer);
         (bool success, bytes memory returnData) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));

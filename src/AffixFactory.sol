@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { VeridocsRegistry } from "./VeridocsRegistry.sol";
+import { AffixRegistry } from "./AffixRegistry.sol";
 
 /**
- * @title VeridocsFactory
- * @dev Factory contract for creating and managing VeridocsRegistry contracts for institutions
+ * @title AffixFactory
+ * @dev Factory contract for creating and managing AffixRegistry contracts for institutions
  * @notice Only the owner can register new institutions
  */
-contract VeridocsFactory is Ownable {
+contract AffixFactory is Ownable {
     // Array of all deployed registry addresses for enumeration
     address[] public deployedRegistries;
 
@@ -30,7 +30,7 @@ contract VeridocsFactory is Ownable {
     }
 
     /**
-     * @dev Register a new institution and deploy their VeridocsRegistry contract
+     * @dev Register a new institution and deploy their AffixRegistry contract
      * @param admin The address that will be the admin of the new registry
      * @param name The name of the institution
      * @param url The URL associated with the institution (e.g., website, verification portal)
@@ -50,8 +50,8 @@ contract VeridocsFactory is Ownable {
         require(bytes(name).length > 0, "Institution name cannot be empty");
         require(bytes(url).length > 0, "Institution URL cannot be empty");
 
-        // Deploy new VeridocsRegistry contract
-        VeridocsRegistry newRegistry = new VeridocsRegistry(admin, name, url);
+        // Deploy new AffixRegistry contract
+        AffixRegistry newRegistry = new AffixRegistry(admin, name, url);
         registryAddress = address(newRegistry);
 
         // Update tracking
@@ -111,7 +111,7 @@ contract VeridocsFactory is Ownable {
     {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
-            VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+            AffixRegistry registry = AffixRegistry(registryAddress);
             admin = registry.admin();
             institutionName = registry.institutionName();
             url = registry.institutionUrl();
