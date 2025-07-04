@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
-import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
+import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title VerifyDocument
- * @notice Script to verify a document using an institution's VeridocsRegistry
+ * @notice Script to verify a document using an institution's AffixRegistry
  * @dev Anyone can verify documents - no authentication required
  */
 contract VerifyDocument is Script {
-    // Current VeridocsFactory address
-    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    // Current AffixFactory address
+    address constant AFFIX_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
 
     function run() public view {
         uint256 chainId = block.chainid;
@@ -26,9 +26,9 @@ contract VerifyDocument is Script {
         require(bytes(documentCid).length > 0, "DOCUMENT_CID environment variable required");
         require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
-        VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
+        AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
-        console2.log("Using VeridocsFactory at:", VERIDOCS_FACTORY_ADDRESS);
+        console2.log("Using AffixFactory at:", AFFIX_FACTORY_ADDRESS);
         console2.log("Registry address:", registryAddress);
         console2.log("Document CID to verify:", documentCid);
 
@@ -36,15 +36,15 @@ contract VerifyDocument is Script {
         require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
-        VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(registryAddress);
 
         console2.log("Institution name:", registry.institutionName());
         console2.log("Institution URL:", registry.institutionUrl());
         console2.log("Registry admin:", registry.admin());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
-            registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) = registry
+            .verifyDocument(documentCid);
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);

@@ -1,16 +1,18 @@
-# Veridocs Contracts
+# Affix Contracts
 
-Verify document authenticity.
+Affix your digital seal and let the world verify it.
 
-- UI repo: https://github.com/julienbrg/veridocs-ui
-- Live demo: https://veridocs-ui.vercel.app/
+- UI repo: https://github.com/julienbrg/affix-ui
+- Live demo: https://affix-ui.vercel.app/
+
+Organisations, businesses and individuals can authenticate their documents using Filecoin while keeping their existing workflows intact. Anyone can then instantly verify that documents are genuine and unaltered.
 
 ### Install
 
 ```bash
 # Clone the repository
-git clone https://github.com/julienbrg/veridocs-contracts.git
-cd veridocs-contracts
+git clone https://github.com/julienbrg/affix-contracts.git
+cd affix-contracts
 
 # Install dependencies
 bun install
@@ -38,7 +40,7 @@ supersim fork --chains=op
 Then:
 
 ```bash
-forge script script/DeployVeridocsFactory.sol --rpc-url op --broadcast
+forge script script/DeployAffixFactory.sol --rpc-url op --broadcast
 forge script script/RegisterInstitution.s.sol --rpc-url op --broadcast
 forge script script/AddAgent.s.sol --rpc-url op --broadcast
 forge script script/IssueDocument.s.sol --rpc-url op --broadcast
@@ -68,7 +70,7 @@ export ADMIN_ADDRESS="0x_your_admin_address"
 #### 1. Deploy Factory
 
 ```bash
-forge script script/DeployVeridocsFactory.sol \
+forge script script/DeployAffixFactory.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \
@@ -83,7 +85,7 @@ After successful factory deployment, update the factory address in `script/Regis
 
 ```solidity
 // Update this line with your deployed factory address
-address constant VERIDOCS_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
+address constant AFFIX_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
 ```
 
 #### 3. Register Institution

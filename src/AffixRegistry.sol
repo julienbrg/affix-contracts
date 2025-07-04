@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 /**
- * @title VeridocsRegistry
+ * @title AffixRegistry
  * @dev Registry contract for managing documents issued by a specific institution
  */
-contract VeridocsRegistry {
+contract AffixRegistry {
     // Institution details
     address public admin;
     string public institutionName;
@@ -143,8 +143,13 @@ contract VeridocsRegistry {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] =
-            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
+        documents[cid] = Document({
+            cid: cid,
+            timestamp: block.timestamp,
+            exists: true,
+            metadata: metadata,
+            issuedBy: msg.sender
+        });
 
         documentCids.push(cid);
 
@@ -159,7 +164,9 @@ contract VeridocsRegistry {
      * @return institutionName_ The name of the issuing institution
      * @return institutionUrl_ The URL of the issuing institution
      */
-    function verifyDocument(string memory cid)
+    function verifyDocument(
+        string memory cid
+    )
         external
         view
         returns (bool exists, uint256 timestamp, string memory institutionName_, string memory institutionUrl_)
@@ -178,7 +185,9 @@ contract VeridocsRegistry {
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(string memory cid)
+    function getDocumentDetails(
+        string memory cid
+    )
         external
         view
         returns (

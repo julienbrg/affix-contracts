@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
-import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
+import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title RegisterInstitution
- * @notice Script to register an institution with the VeridocsFactory
- * @dev Creates a new VeridocsRegistry for the institution
+ * @notice Script to register an institution with the AffixFactory
+ * @dev Creates a new AffixRegistry for the institution
  * @notice Only the factory owner can register new institutions
  */
 contract RegisterInstitution is Script {
-    // UPDATED: Filecoin Calibration VeridocsFactory address
-    address constant VERIDOCS_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
+    // UPDATED: Filecoin Calibration AffixFactory address
+    address constant AFFIX_FACTORY_ADDRESS = 0xB5CAb4359CBd4C03867A1320a14a6e4DBe7141dd;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -22,7 +22,7 @@ contract RegisterInstitution is Script {
         uint256 chainId = block.chainid;
         console2.log("Registering institution on chain ID:", chainId);
         console2.log("Network:", getNetworkName(chainId));
-        console2.log("Using VeridocsFactory at:", VERIDOCS_FACTORY_ADDRESS);
+        console2.log("Using AffixFactory at:", AFFIX_FACTORY_ADDRESS);
 
         // Institution details
         string memory institutionName = vm.envString("INSTITUTION_NAME");
@@ -36,11 +36,11 @@ contract RegisterInstitution is Script {
         // Check if factory exists at expected address
         uint256 factoryCodeSize;
         assembly {
-            factoryCodeSize := extcodesize(VERIDOCS_FACTORY_ADDRESS)
+            factoryCodeSize := extcodesize(AFFIX_FACTORY_ADDRESS)
         }
         require(factoryCodeSize > 0, "Please deploy factory first.");
 
-        VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
+        AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
         // Get the factory owner (this script must be run by the factory owner)
         address factoryOwner = factory.owner();
@@ -67,7 +67,7 @@ contract RegisterInstitution is Script {
         console2.log("Registry contract deployed at:", registryAddress);
 
         // Verify the registry
-        VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(registryAddress);
         console2.log("Registry admin:", registry.admin());
         console2.log("Registry name:", registry.institutionName());
         console2.log("Registry URL:", registry.institutionUrl());
@@ -83,8 +83,9 @@ contract RegisterInstitution is Script {
         console2.log("- Factory owner:", owner);
 
         // Show institution details
-        (address admin, string memory name, string memory url, bool isRegistered) =
-            factory.getInstitutionDetails(registryAddress);
+        (address admin, string memory name, string memory url, bool isRegistered) = factory.getInstitutionDetails(
+            registryAddress
+        );
         console2.log("\nInstitution Details:");
         console2.log("- Admin:", admin);
         console2.log("- Name:", name);
@@ -93,7 +94,7 @@ contract RegisterInstitution is Script {
 
         // Show network-specific explorer links
         console2.log("\nExplorer Links:");
-        console2.log("- Factory:", getExplorerUrl(chainId, VERIDOCS_FACTORY_ADDRESS));
+        console2.log("- Factory:", getExplorerUrl(chainId, AFFIX_FACTORY_ADDRESS));
         console2.log("- Registry:", getExplorerUrl(chainId, registryAddress));
 
         console2.log("\nNext steps:");

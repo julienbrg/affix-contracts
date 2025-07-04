@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
-import { VeridocsRegistry } from "../src/VeridocsRegistry.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
+import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title IssueDocument
- * @notice Script to issue a document using an institution's VeridocsRegistry
+ * @notice Script to issue a document using an institution's AffixRegistry
  * @dev The caller must be either the admin or an authorized agent
  */
 contract IssueDocument is Script {
-    // Expected VeridocsFactory address (same across all chains)
-    address constant VERIDOCS_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    // Expected AffixFactory address (same across all chains)
+    address constant AFFIX_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -29,7 +29,7 @@ contract IssueDocument is Script {
         require(bytes(documentCid).length > 0, "DOCUMENT_CID environment variable required");
         require(registryAddress != address(0), "REGISTRY_ADDRESS environment variable required");
 
-        VeridocsFactory factory = VeridocsFactory(VERIDOCS_FACTORY_ADDRESS);
+        AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
         // Get the issuer address (could be admin or agent)
         address issuer = vm.addr(privateKey);
@@ -42,7 +42,7 @@ contract IssueDocument is Script {
         require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
-        VeridocsRegistry registry = VeridocsRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(registryAddress);
         console2.log("Institution name:", registry.institutionName());
         console2.log("Institution URL:", registry.institutionUrl());
         console2.log("Registry admin:", registry.admin());
@@ -73,11 +73,11 @@ contract IssueDocument is Script {
         vm.stopBroadcast();
 
         // Verify the document was issued
-        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
-            registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) = registry
+            .verifyDocument(documentCid);
 
         // Get full document details
-        (,,,, string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
+        (, , , , string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
 
         console2.log("\nDocument verification:");
         console2.log("- Exists:", exists);

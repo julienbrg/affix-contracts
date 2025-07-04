@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.28;
+pragma solidity >=0.8.24;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
-import { VeridocsFactory } from "../src/VeridocsFactory.sol";
+import { AffixFactory } from "../src/AffixFactory.sol";
 
 /**
- * @title DeployVeridocsFactory
+ * @title DeployAffixFactory
  * @notice Enhanced deployment script with automatic verification support
- * @dev Deploys the VeridocsFactory contract on multiple networks including Filecoin Calibration
+ * @dev Deploys the AffixFactory contract on multiple networks including Filecoin Calibration
  */
-contract DeployVeridocsFactory is Script {
+contract DeployAffixFactory is Script {
     // Safe Singleton Factory address - same on all EVM chains
     address constant SAFE_SINGLETON_FACTORY = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7;
 
     // Salt for CREATE2 deployment
-    bytes32 constant SALT = keccak256(bytes("VERIDOCS_DOCUMENT_FACTORY_V1"));
+    bytes32 constant SALT = keccak256(bytes("AFFIX_DOCUMENT_FACTORY_V1"));
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
-    function run() public returns (address VeridocsFactoryAddress) {
+    function run() public returns (address AffixFactoryAddress) {
         uint256 chainId = block.chainid;
-        console2.log("Deploying VeridocsFactory on chain ID:", chainId);
+        console2.log("Deploying AffixFactory on chain ID:", chainId);
         console2.log("Network name:", getNetworkName(chainId));
         console2.log("Using Safe Singleton Factory at:", SAFE_SINGLETON_FACTORY);
 
@@ -35,43 +35,43 @@ contract DeployVeridocsFactory is Script {
             vm.txGasPrice(3_000_000_000); // 3 nanoFIL
         }
 
-        // Get the creation code for VeridocsFactory with constructor parameters
-        bytes memory VeridocsFactoryCreationCode = abi.encodePacked(
-            type(VeridocsFactory).creationCode,
+        // Get the creation code for AffixFactory with constructor parameters
+        bytes memory AffixFactoryCreationCode = abi.encodePacked(
+            type(AffixFactory).creationCode,
             abi.encode(deployer) // Constructor parameter: initialOwner
         );
-        console2.log("VeridocsFactory creation code length:", VeridocsFactoryCreationCode.length, "bytes");
+        console2.log("AffixFactory creation code length:", AffixFactoryCreationCode.length, "bytes");
 
-        // Compute the expected address for VeridocsFactory
-        address expectedVeridocsFactory = calculateCreate2Address(SALT, keccak256(VeridocsFactoryCreationCode));
-        console2.log("Expected VeridocsFactory address:", expectedVeridocsFactory);
+        // Compute the expected address for AffixFactory
+        address expectedAffixFactory = calculateCreate2Address(SALT, keccak256(AffixFactoryCreationCode));
+        console2.log("Expected AffixFactory address:", expectedAffixFactory);
 
         // Check if contract is already deployed
         uint256 codeSize;
         assembly {
-            codeSize := extcodesize(expectedVeridocsFactory)
+            codeSize := extcodesize(expectedAffixFactory)
         }
 
         bool isNewDeployment = false;
 
         if (codeSize > 0) {
-            console2.log("VeridocsFactory already deployed at:", expectedVeridocsFactory);
+            console2.log("AffixFactory already deployed at:", expectedAffixFactory);
 
             // Verify ownership
-            VeridocsFactory existingFactory = VeridocsFactory(expectedVeridocsFactory);
+            AffixFactory existingFactory = AffixFactory(expectedAffixFactory);
             address currentOwner = existingFactory.owner();
             console2.log("Current factory owner:", currentOwner);
 
             if (currentOwner == deployer) console2.log(" Factory owner is correct");
             else console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
 
-            VeridocsFactoryAddress = expectedVeridocsFactory;
+            AffixFactoryAddress = expectedAffixFactory;
         } else {
             // Start broadcasting with the private key
             vm.startBroadcast(privateKey);
 
-            // Deploy VeridocsFactory using Safe Singleton Factory with proper gas for Filecoin
-            bytes memory callData = abi.encodePacked(SALT, VeridocsFactoryCreationCode);
+            // Deploy AffixFactory using Safe Singleton Factory with proper gas for Filecoin
+            bytes memory callData = abi.encodePacked(SALT, AffixFactoryCreationCode);
 
             bool success;
             bytes memory returnData;
@@ -83,14 +83,14 @@ contract DeployVeridocsFactory is Script {
                 (success, returnData) = SAFE_SINGLETON_FACTORY.call(callData);
             }
 
-            require(success, "VeridocsFactory deployment failed");
+            require(success, "AffixFactory deployment failed");
 
             // Parse the returned address
-            VeridocsFactoryAddress = bytesToAddress(returnData);
-            console2.log("VeridocsFactory deployed at:", VeridocsFactoryAddress);
+            AffixFactoryAddress = bytesToAddress(returnData);
+            console2.log("AffixFactory deployed at:", AffixFactoryAddress);
 
             // Verify deployment
-            require(VeridocsFactoryAddress == expectedVeridocsFactory, "Deployed address mismatch");
+            require(AffixFactoryAddress == expectedAffixFactory, "Deployed address mismatch");
             console2.log("Deployment verified successfully!");
 
             vm.stopBroadcast();
@@ -99,7 +99,7 @@ contract DeployVeridocsFactory is Script {
         }
 
         // Verify ownership is set correctly
-        VeridocsFactory factory = VeridocsFactory(VeridocsFactoryAddress);
+        AffixFactory factory = AffixFactory(AffixFactoryAddress);
         address factoryOwner = factory.owner();
         console2.log("Factory owner set to:", factoryOwner);
 
@@ -110,17 +110,17 @@ contract DeployVeridocsFactory is Script {
         if (isNewDeployment) {
             console2.log("\n=== Deployment Complete ===");
             console2.log("Automatic verification disabled as requested");
-            console2.log("Contract deployed and functional at:", VeridocsFactoryAddress);
-            console2.log("Explorer URL:", getExplorerUrl(chainId, VeridocsFactoryAddress));
+            console2.log("Contract deployed and functional at:", AffixFactoryAddress);
+            console2.log("Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
         }
 
         console2.log("\nDeployment Summary:");
         console2.log("- Network:", getNetworkName(chainId));
         console2.log("- Chain ID:", chainId);
-        console2.log("- VeridocsFactory:", VeridocsFactoryAddress);
+        console2.log("- AffixFactory:", AffixFactoryAddress);
         console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
-        console2.log("- Explorer URL:", getExplorerUrl(chainId, VeridocsFactoryAddress));
+        console2.log("- Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
 
         if (isFilecoinNetwork(chainId)) console2.log("- Gas settings: Optimized for Filecoin network");
 
@@ -128,7 +128,7 @@ contract DeployVeridocsFactory is Script {
         console2.log("1. Register institutions using: registerInstitution(address admin, string name, string url)");
         console2.log("2. Fund the deployer address with", getNetworkCurrency(chainId), "for transaction fees");
 
-        return VeridocsFactoryAddress;
+        return AffixFactoryAddress;
     }
 
     function isFilecoinNetwork(uint256 chainId) internal pure returns (bool) {
@@ -136,9 +136,10 @@ contract DeployVeridocsFactory is Script {
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
-        return address(
-            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
-        );
+        return
+            address(
+                uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
+            );
     }
 
     function bytesToAddress(bytes memory data) internal pure returns (address) {
