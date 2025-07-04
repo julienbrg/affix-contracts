@@ -136,10 +136,9 @@ contract DeployAffixFactory is Script {
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
-        return
-            address(
-                uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
-            );
+        return address(
+            uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), SAFE_SINGLETON_FACTORY, salt, bytecodeHash))))
+        );
     }
 
     function bytesToAddress(bytes memory data) internal pure returns (address) {

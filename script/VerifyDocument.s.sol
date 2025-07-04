@@ -43,8 +43,8 @@ contract VerifyDocument is Script {
         console2.log("Registry admin:", registry.admin());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) = registry
-            .verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
+            registry.verifyDocument(documentCid);
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);

@@ -18,10 +18,7 @@ contract AffixFactory is Ownable {
 
     // Events
     event InstitutionRegistered(
-        address indexed admin,
-        address indexed contractAddress,
-        string institutionName,
-        string url
+        address indexed admin, address indexed contractAddress, string institutionName, string url
     );
 
     /**
@@ -44,7 +41,11 @@ contract AffixFactory is Ownable {
         address admin,
         string memory name,
         string memory url
-    ) external onlyOwner returns (address registryAddress) {
+    )
+        external
+        onlyOwner
+        returns (address registryAddress)
+    {
         require(admin != address(0), "Invalid admin address");
         require(bytes(name).length > 0, "Institution name cannot be empty");
         require(bytes(url).length > 0, "Institution URL cannot be empty");
@@ -103,9 +104,11 @@ contract AffixFactory is Ownable {
      * @return url The URL of the institution
      * @return isRegistered Whether the registry is registered with this factory
      */
-    function getInstitutionDetails(
-        address registryAddress
-    ) external view returns (address admin, string memory institutionName, string memory url, bool isRegistered) {
+    function getInstitutionDetails(address registryAddress)
+        external
+        view
+        returns (address admin, string memory institutionName, string memory url, bool isRegistered)
+    {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
             AffixRegistry registry = AffixRegistry(registryAddress);

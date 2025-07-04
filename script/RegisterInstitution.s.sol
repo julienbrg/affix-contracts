@@ -83,9 +83,8 @@ contract RegisterInstitution is Script {
         console2.log("- Factory owner:", owner);
 
         // Show institution details
-        (address admin, string memory name, string memory url, bool isRegistered) = factory.getInstitutionDetails(
-            registryAddress
-        );
+        (address admin, string memory name, string memory url, bool isRegistered) =
+            factory.getInstitutionDetails(registryAddress);
         console2.log("\nInstitution Details:");
         console2.log("- Admin:", admin);
         console2.log("- Name:", name);

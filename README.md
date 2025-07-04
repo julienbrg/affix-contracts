@@ -5,7 +5,8 @@ Affix your digital seal and let the world verify it.
 - UI repo: https://github.com/julienbrg/affix-ui
 - Live demo: https://affix-ui.vercel.app/
 
-Organisations, businesses and individuals can authenticate their documents using Filecoin while keeping their existing workflows intact. Anyone can then instantly verify that documents are genuine and unaltered.
+Organisations, businesses and individuals can authenticate their documents using Filecoin while keeping their existing
+workflows intact. Anyone can then instantly verify that documents are genuine and unaltered.
 
 ### Install
 
