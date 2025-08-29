@@ -5,9 +5,9 @@
 • **Factory Contract**: `0x36FB4c117507a98e780922246860E499Bb7E996C` • **Registry Contract**:
 `0x27a246684dc4C8d59EE76C6EB6bfEd0a9e756bF1`
 
-## Institution Details
+## Entity Details
 
-• **Institution Name**: Ministry of Sound • **Admin Address**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+• **Entity Name**: Ministry of Sound • **Admin Address**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
 
 ## Agent Addresses
 
@@ -20,7 +20,7 @@ To add:
 
 ## Additional Info
 
-• **Total Institutions Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain
+• **Total Entitys Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain
 ID: 11155111) • **Factory Owner**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
 
 ## Etherscan Links
@@ -86,7 +86,7 @@ Deployment Summary:
   - Gas settings: Optimized for Filecoin network
 
 Next steps:
-  1. Register institutions using: registerInstitution(address admin, string name, string url)
+  1. Register entitys using: registerEntity(address admin, string name, string url)
   2. Fund the deployer address with tFIL for transaction fees
 
 SKIPPING ON CHAIN SIMULATION.
@@ -109,7 +109,7 @@ Sensitive values saved to: /Users/ju/veridocs-contracts/cache/DeployAffixFactory
 
 
 veridocs-contracts took 1m 32s
-➜ forge script script/RegisterInstitution.s.sol \
+➜ forge script script/RegisterEntity.s.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \
@@ -120,7 +120,7 @@ veridocs-contracts took 1m 32s
 [⠃] Compiling 1 files with Solc 0.8.24^C
 
 veridocs-contracts took 6s
-➜ forge script script/RegisterInstitution.s.sol \
+➜ forge script script/RegisterEntity.s.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \
@@ -141,15 +141,15 @@ Script ran successfully.
 registryAddress: address 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
 
 == Logs ==
-  Registering institution on chain ID: 314159
+  Registering entity on chain ID: 314159
   Network: Filecoin Calibration
   Using AffixFactory at: 0xB5CAb4359CBd4C03867A1320a14a6e4DBe7141dd
   Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   Script runner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
-  Institution admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
-  Institution name: Ministry of Sound
-  Institution URL: https://affix.vercel.app/about
-  Institution registered successfully!
+  Entity admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity name: Ministry of Sound
+  Entity URL: https://affix.vercel.app/about
+  Entity registered successfully!
   Registry contract deployed at: 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
   Registry admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   Registry name: Ministry of Sound
@@ -157,10 +157,10 @@ registryAddress: address 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
   Registry agent count: 0
 
 Factory Statistics:
-  - Total institutions: 1
+  - Total entitys: 1
   - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
 
-Institution Details:
+Entity Details:
   - Admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   - Name: Ministry of Sound
   - URL: https://affix.vercel.app/about
@@ -175,7 +175,7 @@ Next steps:
   2. Admin/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)
   3. Anyone can verify documents using: verifyDocument(string cid)
   4. Admin can manage agents using: addAgent(address) and revokeAgent(address)
-  5. Admin can update institution details using: updateInstitutionName(string) and updateInstitutionUrl(string)
+  5. Admin can update entity details using: updateEntityName(string) and updateEntityUrl(string)
 
 Environment variables for next scripts:
   export REGISTRY_ADDRESS= 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
@@ -195,9 +195,9 @@ Paid: 0.000016593588028817 ETH (81563819 gas * 0.000203443 gwei)
 
 ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
 
-Transactions saved to: /Users/ju/veridocs-contracts/broadcast/RegisterInstitution.s.sol/314159/run-latest.json
+Transactions saved to: /Users/ju/veridocs-contracts/broadcast/RegisterEntity.s.sol/314159/run-latest.json
 
-Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterInstitution.s.sol/314159/run-latest.json
+Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterEntity.s.sol/314159/run-latest.json
 ```
 
 ## Affix Contracts - Filecoin Calibration
@@ -207,5 +207,5 @@ Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterInstitutio
 
 **Factory**: 0xB5CAb4359CBd4C03867A1320a14a6e4DBe7141dd **Registry**: 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
 
-**Source Code**: github.com/julienbrg/affix-contracts **Institution**: Ministry of Sound **Admin**:
+**Source Code**: github.com/julienbrg/affix-contracts **Entity**: Ministry of Sound **Admin**:
 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1

@@ -3,13 +3,13 @@ pragma solidity >=0.8.24;
 
 /**
  * @title AffixRegistry
- * @dev Registry contract for managing documents issued by a specific institution
+ * @dev Registry contract for managing documents issued by a specific entity
  */
 contract AffixRegistry {
-    // Institution details
+    // Entity details
     address public admin;
-    string public institutionName;
-    string public institutionUrl;
+    string public entityName;
+    string public entityUrl;
 
     // Agent management
     mapping(address => bool) public agents;
@@ -37,9 +37,9 @@ contract AffixRegistry {
 
     event AgentRevoked(address indexed agent, address indexed revokedBy);
 
-    event InstitutionNameUpdated(string oldName, string newName);
+    event EntityNameUpdated(string oldName, string newName);
 
-    event InstitutionUrlUpdated(string oldUrl, string newUrl);
+    event EntityUrlUpdated(string oldUrl, string newUrl);
 
     // Modifiers
     modifier onlyAdmin() {
@@ -59,18 +59,18 @@ contract AffixRegistry {
 
     /**
      * @dev Constructor to initialize the registry
-     * @param _admin The address of the institution admin
-     * @param _name The name of the institution
-     * @param _url The URL associated with the institution
+     * @param _admin The address of the entity admin
+     * @param _name The name of the entity
+     * @param _url The URL associated with the entity
      */
     constructor(address _admin, string memory _name, string memory _url) {
         require(_admin != address(0), "Invalid admin address");
-        require(bytes(_name).length > 0, "Institution name cannot be empty");
-        require(bytes(_url).length > 0, "Institution URL cannot be empty");
+        require(bytes(_name).length > 0, "Entity name cannot be empty");
+        require(bytes(_url).length > 0, "Entity URL cannot be empty");
 
         admin = _admin;
-        institutionName = _name;
-        institutionUrl = _url;
+        entityName = _name;
+        entityUrl = _url;
     }
 
     /**
@@ -143,8 +143,13 @@ contract AffixRegistry {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] =
-            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
+        documents[cid] = Document({
+            cid: cid,
+            timestamp: block.timestamp,
+            exists: true,
+            metadata: metadata,
+            issuedBy: msg.sender
+        });
 
         documentCids.push(cid);
 
@@ -156,16 +161,14 @@ contract AffixRegistry {
      * @param cid The IPFS CID to verify
      * @return exists Whether the document exists
      * @return timestamp When the document was issued
-     * @return institutionName_ The name of the issuing institution
-     * @return institutionUrl_ The URL of the issuing institution
+     * @return entityName_ The name of the issuing entity
+     * @return entityUrl_ The URL of the issuing entity
      */
-    function verifyDocument(string memory cid)
-        external
-        view
-        returns (bool exists, uint256 timestamp, string memory institutionName_, string memory institutionUrl_)
-    {
+    function verifyDocument(
+        string memory cid
+    ) external view returns (bool exists, uint256 timestamp, string memory entityName_, string memory entityUrl_) {
         Document memory doc = documents[cid];
-        return (doc.exists, doc.timestamp, institutionName, institutionUrl);
+        return (doc.exists, doc.timestamp, entityName, entityUrl);
     }
 
     /**
@@ -173,51 +176,53 @@ contract AffixRegistry {
      * @param cid The IPFS CID to query
      * @return exists Whether the document exists
      * @return timestamp When the document was issued
-     * @return institutionName_ The name of the issuing institution
-     * @return institutionUrl_ The URL of the issuing institution
+     * @return entityName_ The name of the issuing entity
+     * @return entityUrl_ The URL of the issuing entity
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(string memory cid)
+    function getDocumentDetails(
+        string memory cid
+    )
         external
         view
         returns (
             bool exists,
             uint256 timestamp,
-            string memory institutionName_,
-            string memory institutionUrl_,
+            string memory entityName_,
+            string memory entityUrl_,
             string memory metadata,
             address issuedBy
         )
     {
         Document memory doc = documents[cid];
-        return (doc.exists, doc.timestamp, institutionName, institutionUrl, doc.metadata, doc.issuedBy);
+        return (doc.exists, doc.timestamp, entityName, entityUrl, doc.metadata, doc.issuedBy);
     }
 
     /**
-     * @dev Update institution name (only callable by the admin)
-     * @param newName The new name for the institution
+     * @dev Update entity name (only callable by the admin)
+     * @param newName The new name for the entity
      */
-    function updateInstitutionName(string memory newName) external onlyAdmin {
-        require(bytes(newName).length > 0, "Institution name cannot be empty");
+    function updateEntityName(string memory newName) external onlyAdmin {
+        require(bytes(newName).length > 0, "Entity name cannot be empty");
 
-        string memory oldName = institutionName;
-        institutionName = newName;
+        string memory oldName = entityName;
+        entityName = newName;
 
-        emit InstitutionNameUpdated(oldName, newName);
+        emit EntityNameUpdated(oldName, newName);
     }
 
     /**
-     * @dev Update institution URL (only callable by the admin)
-     * @param newUrl The new URL for the institution
+     * @dev Update entity URL (only callable by the admin)
+     * @param newUrl The new URL for the entity
      */
-    function updateInstitutionUrl(string memory newUrl) external onlyAdmin {
-        require(bytes(newUrl).length > 0, "Institution URL cannot be empty");
+    function updateEntityUrl(string memory newUrl) external onlyAdmin {
+        require(bytes(newUrl).length > 0, "Entity URL cannot be empty");
 
-        string memory oldUrl = institutionUrl;
-        institutionUrl = newUrl;
+        string memory oldUrl = entityUrl;
+        entityUrl = newUrl;
 
-        emit InstitutionUrlUpdated(oldUrl, newUrl);
+        emit EntityUrlUpdated(oldUrl, newUrl);
     }
 
     /**
@@ -306,14 +311,14 @@ contract AffixRegistry {
      * @return Boolean indicating if the contract is valid
      */
     function isValidRegistry() external view returns (bool) {
-        return admin != address(0) && bytes(institutionName).length > 0 && bytes(institutionUrl).length > 0;
+        return admin != address(0) && bytes(entityName).length > 0 && bytes(entityUrl).length > 0;
     }
 
     /**
      * @dev Get registry information
      * @return admin_ The admin address
-     * @return institutionName_ The institution name
-     * @return institutionUrl_ The institution URL
+     * @return entityName_ The entity name
+     * @return entityUrl_ The entity URL
      * @return documentCount The total number of documents
      * @return agentCount The total number of active agents
      */
@@ -322,8 +327,8 @@ contract AffixRegistry {
         view
         returns (
             address admin_,
-            string memory institutionName_,
-            string memory institutionUrl_,
+            string memory entityName_,
+            string memory entityUrl_,
             uint256 documentCount,
             uint256 agentCount
         )
@@ -333,6 +338,6 @@ contract AffixRegistry {
             if (agents[agentList[i]]) activeAgentCount++;
         }
 
-        return (admin, institutionName, institutionUrl, documentCids.length, activeAgentCount);
+        return (admin, entityName, entityUrl, documentCids.length, activeAgentCount);
     }
 }

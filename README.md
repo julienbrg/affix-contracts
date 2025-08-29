@@ -42,7 +42,7 @@ Then:
 
 ```bash
 forge script script/DeployAffixFactory.sol --rpc-url op --broadcast
-forge script script/RegisterInstitution.s.sol --rpc-url op --broadcast
+forge script script/RegisterEntity.s.sol --rpc-url op --broadcast
 forge script script/AddAgent.s.sol --rpc-url op --broadcast
 forge script script/IssueDocument.s.sol --rpc-url op --broadcast
 forge script script/VerifyDocument.s.sol --rpc-url op --broadcast
@@ -61,8 +61,8 @@ Deploying to Filecoin Calibration testnet requires special configuration due to 
 
 ```bash
 export PRIVATE_KEY="your_private_key_here"
-export INSTITUTION_NAME="Your Institution Name"
-export INSTITUTION_URL="https://your-institution.com"
+export ENTITY_NAME="Your Entity Name"
+export ENTITY_URL="https://your-entity.com"
 export ADMIN_ADDRESS="0x_your_admin_address"
 ```
 
@@ -82,17 +82,17 @@ forge script script/DeployAffixFactory.sol \
 
 #### 2. Update Factory Address
 
-After successful factory deployment, update the factory address in `script/RegisterInstitution.s.sol`:
+After successful factory deployment, update the factory address in `script/RegisterEntity.s.sol`:
 
 ```solidity
 // Update this line with your deployed factory address
 address constant AFFIX_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
 ```
 
-#### 3. Register Institution
+#### 3. Register Entity
 
 ```bash
-forge script script/RegisterInstitution.s.sol \
+forge script script/RegisterEntity.s.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \

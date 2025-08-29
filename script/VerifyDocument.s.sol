@@ -8,7 +8,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title VerifyDocument
- * @notice Script to verify a document using an institution's AffixRegistry
+ * @notice Script to verify a document using an entity's AffixRegistry
  * @dev Anyone can verify documents - no authentication required
  */
 contract VerifyDocument is Script {
@@ -33,26 +33,27 @@ contract VerifyDocument is Script {
         console2.log("Document CID to verify:", documentCid);
 
         // Verify the registry is registered with the factory
-        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
+        require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
         AffixRegistry registry = AffixRegistry(registryAddress);
 
-        console2.log("Institution name:", registry.institutionName());
-        console2.log("Institution URL:", registry.institutionUrl());
+        console2.log("Entity name:", registry.entityName());
+        console2.log("Entity URL:", registry.entityUrl());
         console2.log("Registry admin:", registry.admin());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
-            registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) = registry.verifyDocument(
+            documentCid
+        );
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);
 
         if (exists) {
             console2.log("Issued timestamp:", timestamp);
-            console2.log("Issuing institution:", institutionName);
-            console2.log("Institution URL:", institutionUrl);
+            console2.log("Issuing entity:", entityName);
+            console2.log("Entity URL:", entityUrl);
             console2.log("Human readable date:", timestampToDate(timestamp));
 
             // Get full document details
@@ -63,8 +64,8 @@ contract VerifyDocument is Script {
                 ,
                 // bool existsDetails - not needed
                 // uint256 timestampDetails - not needed
-                // string memory institutionNameDetails - not needed
-                // string memory institutionUrlDetails - not needed
+                // string memory entityNameDetails - not needed
+                // string memory entityUrlDetails - not needed
                 string memory metadata,
                 address issuedBy
             ) = registry.getDocumentDetails(documentCid);
@@ -75,16 +76,16 @@ contract VerifyDocument is Script {
             console2.log("Registry contract:", registryAddress);
 
             // Check if issuer was admin or agent
-            if (issuedBy == registry.admin()) console2.log("Issued by: Institution Admin");
+            if (issuedBy == registry.admin()) console2.log("Issued by: Entity Admin");
             else if (registry.isAgent(issuedBy)) console2.log("Issued by: Authorized Agent");
             else console2.log("Issued by: Unknown (possibly revoked agent)");
 
             console2.log("\n Document is VALID and VERIFIED");
-            console2.log("Verification URL:", institutionUrl);
+            console2.log("Verification URL:", entityUrl);
         } else {
             console2.log("\n Document NOT FOUND or INVALID");
-            console2.log("This document was not issued by", institutionName);
-            console2.log("Institution URL:", institutionUrl);
+            console2.log("This document was not issued by", entityName);
+            console2.log("Entity URL:", entityUrl);
         }
     }
 

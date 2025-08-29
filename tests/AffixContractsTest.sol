@@ -28,8 +28,8 @@ contract SafeDeploymentTest is Test {
     uint256 public constant OPTIMISM_CHAIN_ID = 10;
 
     // Test data
-    string constant TEST_INSTITUTION_NAME = "Test University";
-    string constant TEST_INSTITUTION_URL = "https://testuniversity.edu";
+    string constant TEST_ENTITY_NAME = "Test University";
+    string constant TEST_ENTITY_URL = "https://testuniversity.edu";
 
     // Mock Safe Singleton Factory for testing
     MockSafeSingletonFactory public mockFactory;
@@ -74,7 +74,7 @@ contract SafeDeploymentTest is Test {
 
         // Verify the contract is working
         AffixFactory factory = AffixFactory(deployedAddress);
-        assertEq(factory.getInstitutionCount(), 0, "Factory should start with 0 institutions");
+        assertEq(factory.getEntityCount(), 0, "Factory should start with 0 entitys");
         assertEq(factory.owner(), FACTORY_OWNER, "Factory owner should be set correctly");
     }
 
@@ -152,7 +152,7 @@ contract SafeDeploymentTest is Test {
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
 
-        (bool success,) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
+        (bool success, ) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
         require(success, "Deployment failed");
 
         uint256 gasUsed = gasBefore - gasleft();
@@ -178,31 +178,32 @@ contract SafeDeploymentTest is Test {
         // The owner should be FACTORY_OWNER as specified in constructor
         assertEq(actualOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
-        // Factory owner can register institutions with URL
+        // Factory owner can register entitys with URL
         vm.prank(FACTORY_OWNER);
-        address registryAddress = factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
+        address registryAddress = factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
 
-        // Verify the institution was registered
-        assertTrue(factory.isInstitutionRegistered(registryAddress), "Institution should be registered");
-        assertEq(factory.getInstitutionCount(), 1, "Should have 1 institution");
+        // Verify the entity was registered
+        assertTrue(factory.isEntityRegistered(registryAddress), "Entity should be registered");
+        assertEq(factory.getEntityCount(), 1, "Should have 1 entity");
 
         // Verify registry address is valid
         assertTrue(registryAddress != address(0), "Registry address should not be zero");
 
-        // Verify institution details including URL
-        (address admin, string memory institutionName, string memory url, bool isRegistered) =
-            factory.getInstitutionDetails(registryAddress);
-        assertTrue(isRegistered, "Institution should be registered");
+        // Verify entity details including URL
+        (address admin, string memory entityName, string memory url, bool isRegistered) = factory.getEntityDetails(
+            registryAddress
+        );
+        assertTrue(isRegistered, "Entity should be registered");
         assertEq(admin, ADMIN1, "Admin should match");
-        assertEq(institutionName, TEST_INSTITUTION_NAME, "Institution name should match");
-        assertEq(url, TEST_INSTITUTION_URL, "Institution URL should match");
+        assertEq(entityName, TEST_ENTITY_NAME, "Entity name should match");
+        assertEq(url, TEST_ENTITY_URL, "Entity URL should match");
 
         console.log("Verified: Deployed factory works correctly with URL");
         console.log("Factory address:", factoryAddress);
         console.log("Registry address:", registryAddress);
         console.log("Factory owner:", actualOwner);
         console.log("Registry admin:", admin);
-        console.log("Institution URL:", url);
+        console.log("Entity URL:", url);
     }
 
     function testFactoryOwnershipAfterDeployment() public {
@@ -214,15 +215,15 @@ contract SafeDeploymentTest is Test {
         address actualOwner = factory.owner();
         assertEq(actualOwner, FACTORY_OWNER, "FACTORY_OWNER should be the factory owner");
 
-        // Only the actual owner (FACTORY_OWNER) can register institutions
+        // Only the actual owner (FACTORY_OWNER) can register entitys
         vm.prank(FACTORY_OWNER);
-        address registryAddress = factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
+        address registryAddress = factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
         assertTrue(registryAddress != address(0), "Registry should be deployed");
 
-        // Non-owner cannot register institutions
+        // Non-owner cannot register entitys
         vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", DEPLOYER1));
         vm.prank(DEPLOYER1);
-        factory.registerInstitution(ADMIN1, "Another University", "https://another.edu");
+        factory.registerEntity(ADMIN1, "Another University", "https://another.edu");
 
         console.log("Verified: Factory ownership works correctly");
         console.log("Actual owner:", actualOwner);
@@ -235,21 +236,21 @@ contract SafeDeploymentTest is Test {
         AffixFactory factory = AffixFactory(factoryAddress);
 
         // Check initial stats - owner is FACTORY_OWNER
-        (uint256 totalInstitutions, address factoryOwner) = factory.getFactoryStats();
-        assertEq(totalInstitutions, 0, "Should start with 0 institutions");
+        (uint256 totalEntitys, address factoryOwner) = factory.getFactoryStats();
+        assertEq(totalEntitys, 0, "Should start with 0 entitys");
         assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
-        // Register an institution using the actual owner (FACTORY_OWNER)
+        // Register an entity using the actual owner (FACTORY_OWNER)
         vm.prank(FACTORY_OWNER);
-        factory.registerInstitution(ADMIN1, TEST_INSTITUTION_NAME, TEST_INSTITUTION_URL);
+        factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
 
         // Check updated stats
-        (totalInstitutions, factoryOwner) = factory.getFactoryStats();
-        assertEq(totalInstitutions, 1, "Should have 1 institution after registration");
+        (totalEntitys, factoryOwner) = factory.getFactoryStats();
+        assertEq(totalEntitys, 1, "Should have 1 entity after registration");
         assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should remain FACTORY_OWNER");
 
         console.log("Verified: Factory stats work correctly");
-        console.log("Total institutions:", totalInstitutions);
+        console.log("Total entitys:", totalEntitys);
         console.log("Factory owner:", factoryOwner);
     }
 
@@ -269,11 +270,7 @@ contract SafeDeploymentTest is Test {
         address deployer,
         bytes32 salt,
         bytes32 bytecodeHash
-    )
-        internal
-        pure
-        returns (address)
-    {
+    ) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 }
@@ -287,7 +284,7 @@ contract MockSafeSingletonFactory {
     mapping(bytes32 => address) public deployedContracts;
 
     // Add receive function to handle plain ether transfers
-    receive() external payable { }
+    receive() external payable {}
 
     /**
      * @notice Simulates CREATE2 deployment
@@ -326,7 +323,9 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) { revert(0, 0) }
+            if iszero(deployedAddress) {
+                revert(0, 0)
+            }
         }
 
         // Store deployment
