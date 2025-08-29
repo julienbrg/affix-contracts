@@ -209,3 +209,105 @@ Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterEntity.s.s
 
 **Source Code**: github.com/julienbrg/affix-contracts **Entity**: Ministry of Sound **Admin**:
 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+## Deployment to OP Mainnet
+
+```
+== Return ==
+registryAddress: address 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+
+== Logs ==
+  Registering entity on chain ID: 10
+  Network: Optimism Mainnet
+  Using AffixFactory at: 0x4C4D5C40D5D1c3F32724e8bef14b406F01b5eea6
+  Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Script runner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity name: Affix Official
+  Entity URL: https://affix-ui.vercel.app/about
+  Entity registered successfully!
+  Registry contract deployed at: 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+  Registry admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Registry name: Affix Official
+  Registry URL: https://affix-ui.vercel.app/about
+  Registry agent count: 0
+
+Factory Statistics:
+  - Total entitys: 1
+  - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+Entity Details:
+  - Admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  - Name: Affix Official
+  - URL: https://affix-ui.vercel.app/about
+  - Is registered: true
+
+Explorer Links:
+  - Factory: https://optimistic.etherscan.io/address/0x4c4d5c40d5d1c3f32724e8bef14b406f01b5eea6
+  - Registry: https://optimistic.etherscan.io/address/0xfdf01f935362ae6a59f16799f93ee179b5b6420e
+
+Next steps:
+  1. The admin can add agents using: addAgent(address agent)
+  2. Admin/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)
+  3. Anyone can verify documents using: verifyDocument(string cid)
+  4. Admin can manage agents using: addAgent(address) and revokeAgent(address)
+  5. Admin can update entity details using: updateEntityName(string) and updateEntityUrl(string)
+
+Environment variables for next scripts:
+  export REGISTRY_ADDRESS= 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+  export ADMIN_ADDRESS= 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 10
+
+Estimated gas price: 0.000001046 gwei
+
+Estimated total gas used for script: 2316510
+
+Estimated amount required: 0.00000000242306946 ETH
+
+==========================
+
+##### optimism
+✅  [Success] Hash: 0xf5c932c3c58552e173ffa26f606b327be4a2f7b516b1182ad613633206522023
+Block: 140441756
+Paid: 0.000000001237289151 ETH (1816871 gas * 0.000000681 gwei)
+
+✅ Sequence #1 on optimism | Total Paid: 0.000000001237289151 ETH (1816871 gas * avg 0.000000681 gwei)
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+##
+Start verification for (1) contracts
+Start verifying contract `0xfDF01f935362AE6a59F16799F93eE179B5B6420E` deployed on optimism
+Compiler version: 0.8.24
+Optimizations:    10000
+Constructor args: 000000000000000000000000502fb0dff6a2adbf43468c9888d1a26943eac6d1000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000e4166666978204f6666696369616c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002168747470733a2f2f61666669782d75692e76657263656c2e6170702f61626f757400000000000000000000000000000000000000000000000000000000000000
+
+Submitting verification for [src/AffixRegistry.sol:AffixRegistry] 0xfDF01f935362AE6a59F16799F93eE179B5B6420E.
+Warning: Etherscan could not detect the deployment.; waiting 5 seconds before trying again (4 tries remaining)
+
+Submitting verification for [src/AffixRegistry.sol:AffixRegistry] 0xfDF01f935362AE6a59F16799F93eE179B5B6420E.
+Submitted contract for verification:
+        Response: `OK`
+        GUID: `1std8mceixm1jsbbftxsaluewh6ui9wtvnwcpfcipy6c5jwgvn`
+        URL: https://optimistic.etherscan.io/address/0xfdf01f935362ae6a59f16799f93ee179b5b6420e
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Warning: Verification is still pending...; waiting 15 seconds before trying again (7 tries remaining)
+Contract verification status:
+Response: `OK`
+Details: `Pass - Verified`
+Contract successfully verified
+All (1) contracts were verified!
+
+Transactions saved to: /Users/ju/affix-contracts/broadcast/RegisterEntity.s.sol/10/run-latest.json
+
+Sensitive values saved to: /Users/ju/affix-contracts/cache/RegisterEntity.s.sol/10/run-latest.json
+```
