@@ -311,3 +311,30 @@ Transactions saved to: /Users/ju/affix-contracts/broadcast/RegisterEntity.s.sol/
 
 Sensitive values saved to: /Users/ju/affix-contracts/cache/RegisterEntity.s.sol/10/run-latest.json
 ```
+
+## Second deployment to OP Mainnet (Sept 1)
+
+### Successful Deployment Complete ✅
+
+**Network**: Optimism Mainnet (Chain ID: 10)
+**Total Gas Cost**: ~0.000000027 ETH (extremely low cost)
+
+### Key Contract Addresses:
+
+**AffixFactory** (Main Factory Contract):
+- Address: `0x4aB7CC55122b0a2f07812240405cd47ecA999c0a`
+- Explorer: https://optimistic.etherscan.io/address/0x4ab7cc55122b0a2f07812240405cd47eca999c0a
+- Owner: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+
+**AffixRegistry** (Your Entity Registry):
+- Address: `0xa0d98DCaDab6e6FF45cd7087F8192d65aa954256`
+- Explorer: https://optimistic.etherscan.io/address/0xa0d98dcadab6e6ff45cd7087f8192d65aa954256
+- Admin: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+- Entity Name: "Affix Official"
+- Entity URL: https://affix-ui.vercel.app/about
+
+### Current Status:
+- Factory deployed and verified ✅
+- Entity "Affix Official" registered ✅
+- Agent added (your address as both admin and agent) ✅
+- Ready to issue and verify documents ✅
