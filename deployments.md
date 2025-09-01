@@ -20,7 +20,7 @@ To add:
 
 ## Additional Info
 
-• **Total Entitys Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain
+• **Total Entities Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain
 ID: 11155111) • **Factory Owner**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
 
 ## Etherscan Links
@@ -86,7 +86,7 @@ Deployment Summary:
   - Gas settings: Optimized for Filecoin network
 
 Next steps:
-  1. Register entitys using: registerEntity(address admin, string name, string url)
+  1. Register entities using: registerEntity(address admin, string name, string url)
   2. Fund the deployer address with tFIL for transaction fees
 
 SKIPPING ON CHAIN SIMULATION.
@@ -157,7 +157,7 @@ registryAddress: address 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
   Registry agent count: 0
 
 Factory Statistics:
-  - Total entitys: 1
+  - Total entities: 1
   - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
 
 Entity Details:
@@ -233,7 +233,7 @@ registryAddress: address 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
   Registry agent count: 0
 
 Factory Statistics:
-  - Total entitys: 1
+  - Total entities: 1
   - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
 
 Entity Details:

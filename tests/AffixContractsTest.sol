@@ -74,7 +74,7 @@ contract SafeDeploymentTest is Test {
 
         // Verify the contract is working
         AffixFactory factory = AffixFactory(deployedAddress);
-        assertEq(factory.getEntityCount(), 0, "Factory should start with 0 entitys");
+        assertEq(factory.getEntityCount(), 0, "Factory should start with 0 entities");
         assertEq(factory.owner(), FACTORY_OWNER, "Factory owner should be set correctly");
     }
 
@@ -178,7 +178,7 @@ contract SafeDeploymentTest is Test {
         // The owner should be FACTORY_OWNER as specified in constructor
         assertEq(actualOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
-        // Factory owner can register entitys with URL
+        // Factory owner can register entities with URL
         vm.prank(FACTORY_OWNER);
         address registryAddress = factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
 
@@ -215,12 +215,12 @@ contract SafeDeploymentTest is Test {
         address actualOwner = factory.owner();
         assertEq(actualOwner, FACTORY_OWNER, "FACTORY_OWNER should be the factory owner");
 
-        // Only the actual owner (FACTORY_OWNER) can register entitys
+        // Only the actual owner (FACTORY_OWNER) can register entities
         vm.prank(FACTORY_OWNER);
         address registryAddress = factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
         assertTrue(registryAddress != address(0), "Registry should be deployed");
 
-        // Non-owner cannot register entitys
+        // Non-owner cannot register entities
         vm.expectRevert(abi.encodeWithSignature("OwnableUnauthorizedAccount(address)", DEPLOYER1));
         vm.prank(DEPLOYER1);
         factory.registerEntity(ADMIN1, "Another University", "https://another.edu");
@@ -236,8 +236,8 @@ contract SafeDeploymentTest is Test {
         AffixFactory factory = AffixFactory(factoryAddress);
 
         // Check initial stats - owner is FACTORY_OWNER
-        (uint256 totalEntitys, address factoryOwner) = factory.getFactoryStats();
-        assertEq(totalEntitys, 0, "Should start with 0 entitys");
+        (uint256 totalEntities, address factoryOwner) = factory.getFactoryStats();
+        assertEq(totalEntities, 0, "Should start with 0 entities");
         assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should be FACTORY_OWNER");
 
         // Register an entity using the actual owner (FACTORY_OWNER)
@@ -245,12 +245,12 @@ contract SafeDeploymentTest is Test {
         factory.registerEntity(ADMIN1, TEST_ENTITY_NAME, TEST_ENTITY_URL);
 
         // Check updated stats
-        (totalEntitys, factoryOwner) = factory.getFactoryStats();
-        assertEq(totalEntitys, 1, "Should have 1 entity after registration");
+        (totalEntities, factoryOwner) = factory.getFactoryStats();
+        assertEq(totalEntities, 1, "Should have 1 entity after registration");
         assertEq(factoryOwner, FACTORY_OWNER, "Factory owner should remain FACTORY_OWNER");
 
         console.log("Verified: Factory stats work correctly");
-        console.log("Total entitys:", totalEntitys);
+        console.log("Total entities:", totalEntities);
         console.log("Factory owner:", factoryOwner);
     }
 

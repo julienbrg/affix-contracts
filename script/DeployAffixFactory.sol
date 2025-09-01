@@ -112,7 +112,7 @@ contract DeployAffixFactory is Script {
         console2.log("- Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
 
         console2.log("\nNext steps:");
-        console2.log("1. Register entitys using: registerEntity(address admin, string name, string url)");
+        console2.log("1. Register entities using: registerEntity(address admin, string name, string url)");
         console2.log("2. Fund the deployer address with", getNetworkCurrency(chainId), "for transaction fees");
 
         return AffixFactoryAddress;

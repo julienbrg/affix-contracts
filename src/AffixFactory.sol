@@ -6,8 +6,8 @@ import { AffixRegistry } from "./AffixRegistry.sol";
 
 /**
  * @title AffixFactory
- * @dev Factory contract for creating and managing AffixRegistry contracts for entitys
- * @notice Only the owner can register new entitys
+ * @dev Factory contract for creating and managing AffixRegistry contracts for entities
+ * @notice Only the owner can register new entities
  */
 contract AffixFactory is Ownable {
     // Array of all deployed registry addresses for enumeration
@@ -32,7 +32,7 @@ contract AffixFactory is Ownable {
      * @param admin The address that will be the admin of the new registry
      * @param name The name of the entity
      * @param url The URL associated with the entity (e.g., website, verification portal)
-     * @notice Only the factory owner can register new entitys
+     * @notice Only the factory owner can register new entities
      * @return registryAddress The address of the newly deployed registry
      */
     function registerEntity(
@@ -65,8 +65,8 @@ contract AffixFactory is Ownable {
     }
 
     /**
-     * @dev Get the total number of registered entitys
-     * @return The count of registered entitys
+     * @dev Get the total number of registered entities
+     * @return The count of registered entities
      */
     function getEntityCount() external view returns (uint256) {
         return deployedRegistries.length;
@@ -86,7 +86,7 @@ contract AffixFactory is Ownable {
      * @dev Get all deployed registry addresses
      * @return Array of all registry addresses
      */
-    function getAllEntitys() external view returns (address[] memory) {
+    function getAllEntities() external view returns (address[] memory) {
         return deployedRegistries;
     }
 
@@ -112,10 +112,10 @@ contract AffixFactory is Ownable {
 
     /**
      * @dev Get comprehensive factory statistics
-     * @return totalEntitys Total number of registered entitys
+     * @return totalEntities Total number of registered entities
      * @return factoryOwner The owner of this factory
      */
-    function getFactoryStats() external view returns (uint256 totalEntitys, address factoryOwner) {
+    function getFactoryStats() external view returns (uint256 totalEntities, address factoryOwner) {
         return (deployedRegistries.length, owner());
     }
 }

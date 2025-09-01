@@ -10,7 +10,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
  * @title RegisterEntity
  * @notice Script to register an entity with the AffixFactory
  * @dev Creates a new AffixRegistry for the entity
- * @notice Only the factory owner can register new entitys
+ * @notice Only the factory owner can register new entities
  */
 contract RegisterEntity is Script {
     // UPDATED: Filecoin Calibration AffixFactory address
@@ -53,7 +53,7 @@ contract RegisterEntity is Script {
         console2.log("Entity URL:", entityUrl);
 
         // Verify the deployer is the factory owner
-        require(deployer == factoryOwner, "Only factory owner can register entitys");
+        require(deployer == factoryOwner, "Only factory owner can register entities");
 
         // Start broadcasting
         vm.startBroadcast(privateKey);
@@ -77,9 +77,9 @@ contract RegisterEntity is Script {
         assertTrue(factory.isEntityRegistered(registryAddress), "Factory should recognize the registry");
 
         // Display factory statistics
-        (uint256 totalEntitys, address owner) = factory.getFactoryStats();
+        (uint256 totalEntities, address owner) = factory.getFactoryStats();
         console2.log("\nFactory Statistics:");
-        console2.log("- Total entitys:", totalEntitys);
+        console2.log("- Total entities:", totalEntities);
         console2.log("- Factory owner:", owner);
 
         // Show entity details
