@@ -8,12 +8,12 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title AddAgent
- * @notice Script to add an agent to an institution's AffixRegistry
- * @dev The caller must be the registered admin of the institution
+ * @notice Script to add an agent to an entity's AffixRegistry
+ * @dev The caller must be the registered admin of the entity
  */
 contract AddAgent is Script {
     // Expected AffixFactory address (same across all chains)
-    address constant AFFIX_FACTORY_ADDRESS = 0x36FB4c117507a98e780922246860E499Bb7E996C;
+    address constant AFFIX_FACTORY_ADDRESS = 0x4aB7CC55122b0a2f07812240405cd47ecA999c0a;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -37,14 +37,14 @@ contract AddAgent is Script {
         console2.log("Agent address to add:", agentAddress);
 
         // Verify the registry is registered with the factory
-        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
+        require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details and verify caller is admin
         AffixRegistry registry = AffixRegistry(registryAddress);
         address registryAdmin = registry.admin();
 
         console2.log("Registry admin:", registryAdmin);
-        console2.log("Institution name:", registry.institutionName());
+        console2.log("Entity name:", registry.entityName());
         console2.log("Current agent count:", registry.getAgentCount());
 
         // Verify the caller is indeed the admin of the registry

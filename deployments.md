@@ -5,9 +5,9 @@
 • **Factory Contract**: `0x36FB4c117507a98e780922246860E499Bb7E996C` • **Registry Contract**:
 `0x27a246684dc4C8d59EE76C6EB6bfEd0a9e756bF1`
 
-## Institution Details
+## Entity Details
 
-• **Institution Name**: Ministry of Sound • **Admin Address**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+• **Entity Name**: Ministry of Sound • **Admin Address**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
 
 ## Agent Addresses
 
@@ -20,8 +20,8 @@ To add:
 
 ## Additional Info
 
-• **Total Institutions Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain
-ID: 11155111) • **Factory Owner**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+• **Total Entities Registered**: 3 • **Total Agents in Registry**: 2 • **Network**: Sepolia Testnet (Chain ID: 11155111)
+• **Factory Owner**: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
 
 ## Etherscan Links
 
@@ -86,7 +86,7 @@ Deployment Summary:
   - Gas settings: Optimized for Filecoin network
 
 Next steps:
-  1. Register institutions using: registerInstitution(address admin, string name, string url)
+  1. Register entities using: registerEntity(address admin, string name, string url)
   2. Fund the deployer address with tFIL for transaction fees
 
 SKIPPING ON CHAIN SIMULATION.
@@ -109,7 +109,7 @@ Sensitive values saved to: /Users/ju/veridocs-contracts/cache/DeployAffixFactory
 
 
 veridocs-contracts took 1m 32s
-➜ forge script script/RegisterInstitution.s.sol \
+➜ forge script script/RegisterEntity.s.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \
@@ -120,7 +120,7 @@ veridocs-contracts took 1m 32s
 [⠃] Compiling 1 files with Solc 0.8.24^C
 
 veridocs-contracts took 6s
-➜ forge script script/RegisterInstitution.s.sol \
+➜ forge script script/RegisterEntity.s.sol \
   --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
   --broadcast \
   --gas-limit 30000000 \
@@ -141,15 +141,15 @@ Script ran successfully.
 registryAddress: address 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
 
 == Logs ==
-  Registering institution on chain ID: 314159
+  Registering entity on chain ID: 314159
   Network: Filecoin Calibration
   Using AffixFactory at: 0xB5CAb4359CBd4C03867A1320a14a6e4DBe7141dd
   Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   Script runner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
-  Institution admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
-  Institution name: Ministry of Sound
-  Institution URL: https://affix.vercel.app/about
-  Institution registered successfully!
+  Entity admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity name: Ministry of Sound
+  Entity URL: https://affix.vercel.app/about
+  Entity registered successfully!
   Registry contract deployed at: 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
   Registry admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   Registry name: Ministry of Sound
@@ -157,10 +157,10 @@ registryAddress: address 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
   Registry agent count: 0
 
 Factory Statistics:
-  - Total institutions: 1
+  - Total entities: 1
   - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
 
-Institution Details:
+Entity Details:
   - Admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
   - Name: Ministry of Sound
   - URL: https://affix.vercel.app/about
@@ -175,7 +175,7 @@ Next steps:
   2. Admin/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)
   3. Anyone can verify documents using: verifyDocument(string cid)
   4. Admin can manage agents using: addAgent(address) and revokeAgent(address)
-  5. Admin can update institution details using: updateInstitutionName(string) and updateInstitutionUrl(string)
+  5. Admin can update entity details using: updateEntityName(string) and updateEntityUrl(string)
 
 Environment variables for next scripts:
   export REGISTRY_ADDRESS= 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
@@ -195,9 +195,9 @@ Paid: 0.000016593588028817 ETH (81563819 gas * 0.000203443 gwei)
 
 ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
 
-Transactions saved to: /Users/ju/veridocs-contracts/broadcast/RegisterInstitution.s.sol/314159/run-latest.json
+Transactions saved to: /Users/ju/veridocs-contracts/broadcast/RegisterEntity.s.sol/314159/run-latest.json
 
-Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterInstitution.s.sol/314159/run-latest.json
+Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterEntity.s.sol/314159/run-latest.json
 ```
 
 ## Affix Contracts - Filecoin Calibration
@@ -207,5 +207,136 @@ Sensitive values saved to: /Users/ju/veridocs-contracts/cache/RegisterInstitutio
 
 **Factory**: 0xB5CAb4359CBd4C03867A1320a14a6e4DBe7141dd **Registry**: 0xE2b7f08d9879594e69784a86c5ca07cCae86A76a
 
-**Source Code**: github.com/julienbrg/affix-contracts **Institution**: Ministry of Sound **Admin**:
+**Source Code**: github.com/julienbrg/affix-contracts **Entity**: Ministry of Sound **Admin**:
 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+## Deployment to OP Mainnet
+
+```
+== Return ==
+registryAddress: address 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+
+== Logs ==
+  Registering entity on chain ID: 10
+  Network: Optimism Mainnet
+  Using AffixFactory at: 0x4C4D5C40D5D1c3F32724e8bef14b406F01b5eea6
+  Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Script runner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity admin address: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Entity name: Affix Official
+  Entity URL: https://affix-ui.vercel.app/about
+  Entity registered successfully!
+  Registry contract deployed at: 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+  Registry admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  Registry name: Affix Official
+  Registry URL: https://affix-ui.vercel.app/about
+  Registry agent count: 0
+
+Factory Statistics:
+  - Total entities: 1
+  - Factory owner: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+Entity Details:
+  - Admin: 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+  - Name: Affix Official
+  - URL: https://affix-ui.vercel.app/about
+  - Is registered: true
+
+Explorer Links:
+  - Factory: https://optimistic.etherscan.io/address/0x4c4d5c40d5d1c3f32724e8bef14b406f01b5eea6
+  - Registry: https://optimistic.etherscan.io/address/0xfdf01f935362ae6a59f16799f93ee179b5b6420e
+
+Next steps:
+  1. The admin can add agents using: addAgent(address agent)
+  2. Admin/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)
+  3. Anyone can verify documents using: verifyDocument(string cid)
+  4. Admin can manage agents using: addAgent(address) and revokeAgent(address)
+  5. Admin can update entity details using: updateEntityName(string) and updateEntityUrl(string)
+
+Environment variables for next scripts:
+  export REGISTRY_ADDRESS= 0xfDF01f935362AE6a59F16799F93eE179B5B6420E
+  export ADMIN_ADDRESS= 0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 10
+
+Estimated gas price: 0.000001046 gwei
+
+Estimated total gas used for script: 2316510
+
+Estimated amount required: 0.00000000242306946 ETH
+
+==========================
+
+##### optimism
+✅  [Success] Hash: 0xf5c932c3c58552e173ffa26f606b327be4a2f7b516b1182ad613633206522023
+Block: 140441756
+Paid: 0.000000001237289151 ETH (1816871 gas * 0.000000681 gwei)
+
+✅ Sequence #1 on optimism | Total Paid: 0.000000001237289151 ETH (1816871 gas * avg 0.000000681 gwei)
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+##
+Start verification for (1) contracts
+Start verifying contract `0xfDF01f935362AE6a59F16799F93eE179B5B6420E` deployed on optimism
+Compiler version: 0.8.24
+Optimizations:    10000
+Constructor args: 000000000000000000000000502fb0dff6a2adbf43468c9888d1a26943eac6d1000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000e4166666978204f6666696369616c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002168747470733a2f2f61666669782d75692e76657263656c2e6170702f61626f757400000000000000000000000000000000000000000000000000000000000000
+
+Submitting verification for [src/AffixRegistry.sol:AffixRegistry] 0xfDF01f935362AE6a59F16799F93eE179B5B6420E.
+Warning: Etherscan could not detect the deployment.; waiting 5 seconds before trying again (4 tries remaining)
+
+Submitting verification for [src/AffixRegistry.sol:AffixRegistry] 0xfDF01f935362AE6a59F16799F93eE179B5B6420E.
+Submitted contract for verification:
+        Response: `OK`
+        GUID: `1std8mceixm1jsbbftxsaluewh6ui9wtvnwcpfcipy6c5jwgvn`
+        URL: https://optimistic.etherscan.io/address/0xfdf01f935362ae6a59f16799f93ee179b5b6420e
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Warning: Verification is still pending...; waiting 15 seconds before trying again (7 tries remaining)
+Contract verification status:
+Response: `OK`
+Details: `Pass - Verified`
+Contract successfully verified
+All (1) contracts were verified!
+
+Transactions saved to: /Users/ju/affix-contracts/broadcast/RegisterEntity.s.sol/10/run-latest.json
+
+Sensitive values saved to: /Users/ju/affix-contracts/cache/RegisterEntity.s.sol/10/run-latest.json
+```
+
+## Second deployment to OP Mainnet (Sept 1)
+
+### Successful Deployment Complete ✅
+
+**Network**: Optimism Mainnet (Chain ID: 10) **Total Gas Cost**: ~0.000000027 ETH (extremely low cost)
+
+### Key Contract Addresses:
+
+**AffixFactory** (Main Factory Contract):
+
+- Address: `0x4aB7CC55122b0a2f07812240405cd47ecA999c0a`
+- Explorer: https://optimistic.etherscan.io/address/0x4ab7cc55122b0a2f07812240405cd47eca999c0a
+- Owner: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+
+**AffixRegistry** (Your Entity Registry):
+
+- Address: `0xa0d98DCaDab6e6FF45cd7087F8192d65aa954256`
+- Explorer: https://optimistic.etherscan.io/address/0xa0d98dcadab6e6ff45cd7087f8192d65aa954256
+- Admin: `0x502fb0dFf6A2adbF43468C9888D1A26943eAC6D1`
+- Entity Name: "Affix Official"
+- Entity URL: https://affix-ui.vercel.app/about
+
+### Current Status:
+
+- Factory deployed and verified ✅
+- Entity "Affix Official" registered ✅
+- Agent added (your address as both admin and agent) ✅
+- Ready to issue and verify documents ✅

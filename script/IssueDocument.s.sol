@@ -8,7 +8,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title IssueDocument
- * @notice Script to issue a document using an institution's AffixRegistry
+ * @notice Script to issue a document using an entity's AffixRegistry
  * @dev The caller must be either the admin or an authorized agent
  */
 contract IssueDocument is Script {
@@ -39,12 +39,12 @@ contract IssueDocument is Script {
         console2.log("Document metadata:", metadata);
 
         // Verify the registry is registered with the factory
-        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
+        require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
         AffixRegistry registry = AffixRegistry(registryAddress);
-        console2.log("Institution name:", registry.institutionName());
-        console2.log("Institution URL:", registry.institutionUrl());
+        console2.log("Entity name:", registry.entityName());
+        console2.log("Entity URL:", registry.entityUrl());
         console2.log("Registry admin:", registry.admin());
 
         // Check if issuer can issue documents
@@ -73,7 +73,7 @@ contract IssueDocument is Script {
         vm.stopBroadcast();
 
         // Verify the document was issued
-        (bool exists, uint256 timestamp, string memory institutionName, string memory institutionUrl) =
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
             registry.verifyDocument(documentCid);
 
         // Get full document details
@@ -82,8 +82,8 @@ contract IssueDocument is Script {
         console2.log("\nDocument verification:");
         console2.log("- Exists:", exists);
         console2.log("- Timestamp:", timestamp);
-        console2.log("- Institution:", institutionName);
-        console2.log("- Institution URL:", institutionUrl);
+        console2.log("- Entity:", entityName);
+        console2.log("- Entity URL:", entityUrl);
         console2.log("- Metadata:", metadataDetails);
         console2.log("- Issued by:", issuedBy);
         console2.log("- Registry contract:", registryAddress);

@@ -42,63 +42,39 @@ Then:
 
 ```bash
 forge script script/DeployAffixFactory.sol --rpc-url op --broadcast
-forge script script/RegisterInstitution.s.sol --rpc-url op --broadcast
+forge script script/RegisterEntity.s.sol --rpc-url op --broadcast
 forge script script/AddAgent.s.sol --rpc-url op --broadcast
 forge script script/IssueDocument.s.sol --rpc-url op --broadcast
 forge script script/VerifyDocument.s.sol --rpc-url op --broadcast
 ```
 
-## Deploy to Calibration
-
-Deploying to Filecoin Calibration testnet requires special configuration due to EVM compatibility differences.
-
-### Prerequisites
-
-1. **Get Calibration testnet funds**: Visit the [Calibration Faucet](https://faucet.calibration.fildev.network/) and
-   request tFIL for your deployer address.
-
-2. **Set environment variables**:
-
-```bash
-export PRIVATE_KEY="your_private_key_here"
-export INSTITUTION_NAME="Your Institution Name"
-export INSTITUTION_URL="https://your-institution.com"
-export ADMIN_ADDRESS="0x_your_admin_address"
-```
-
-### Deployment Steps
+## Deploy to OP Mainnet
 
 #### 1. Deploy Factory
 
 ```bash
 forge script script/DeployAffixFactory.sol \
-  --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
+  --rpc-url optimism \
   --broadcast \
-  --gas-limit 30000000 \
-  --gas-price 150000000000 \
-  --evm-version paris \
-  --skip-simulation
+  --verify
 ```
 
 #### 2. Update Factory Address
 
-After successful factory deployment, update the factory address in `script/RegisterInstitution.s.sol`:
+After successful factory deployment, update the factory address in `script/RegisterEntity.s.sol`:
 
 ```solidity
 // Update this line with your deployed factory address
-address constant AFFIX_FACTORY_ADDRESS = 0x1928Fb336C74432e129142c7E3ee57856486eFfa;
+address constant AFFIX_FACTORY_ADDRESS = <NEW_FACTORY_ADDRESS>;
 ```
 
-#### 3. Register Institution
+#### 3. Register Entity
 
 ```bash
-forge script script/RegisterInstitution.s.sol \
-  --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
+forge script script/RegisterEntity.s.sol \
+  --rpc-url optimism \
   --broadcast \
-  --gas-limit 30000000 \
-  --gas-price 150000000000 \
-  --evm-version paris \
-  --skip-simulation
+  --verify
 ```
 
 #### 4. Add Agents (Optional)

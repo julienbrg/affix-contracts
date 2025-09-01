@@ -8,8 +8,8 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 
 /**
  * @title RevokeAgent
- * @notice Script to revoke an agent from an institution's AffixRegistry
- * @dev The caller must be the registered admin of the institution
+ * @notice Script to revoke an agent from an entity's AffixRegistry
+ * @dev The caller must be the registered admin of the entity
  */
 contract RevokeAgent is Script {
     // Expected AffixFactory address (same across all chains)
@@ -37,14 +37,14 @@ contract RevokeAgent is Script {
         console2.log("Agent address to revoke:", agentAddress);
 
         // Verify the registry is registered with the factory
-        require(factory.isInstitutionRegistered(registryAddress), "Registry not registered with factory");
+        require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details and verify caller is admin
         AffixRegistry registry = AffixRegistry(registryAddress);
         address registryAdmin = registry.admin();
 
         console2.log("Registry admin:", registryAdmin);
-        console2.log("Institution name:", registry.institutionName());
+        console2.log("Entity name:", registry.entityName());
         console2.log("Current agent count:", registry.getAgentCount());
 
         // Verify the caller is indeed the admin of the registry
@@ -85,7 +85,7 @@ contract RevokeAgent is Script {
         }
 
         console2.log("\nAgent revoked successfully!");
-        console2.log("The agent can no longer issue documents for this institution");
+        console2.log("The agent can no longer issue documents for this entity");
     }
 }
 

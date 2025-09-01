@@ -29,12 +29,6 @@ contract DeployAffixFactory is Script {
         address deployer = vm.addr(privateKey);
         console2.log("Deployer/Future Factory Owner:", deployer);
 
-        // Set Filecoin-specific gas settings if needed
-        if (isFilecoinNetwork(chainId)) {
-            console2.log("Filecoin network detected - using higher gas settings");
-            vm.txGasPrice(3_000_000_000); // 3 nanoFIL
-        }
-
         // Get the creation code for AffixFactory with constructor parameters
         bytes memory AffixFactoryCreationCode = abi.encodePacked(
             type(AffixFactory).creationCode,
@@ -75,13 +69,8 @@ contract DeployAffixFactory is Script {
 
             bool success;
             bytes memory returnData;
-            if (isFilecoinNetwork(chainId)) {
-                // Use higher gas limit for Filecoin networks
-                (success, returnData) = SAFE_SINGLETON_FACTORY.call{ gas: 25_000_000 }(callData);
-            } else {
-                // Standard call for other networks
-                (success, returnData) = SAFE_SINGLETON_FACTORY.call(callData);
-            }
+
+            (success, returnData) = SAFE_SINGLETON_FACTORY.call(callData);
 
             require(success, "AffixFactory deployment failed");
 
@@ -122,17 +111,11 @@ contract DeployAffixFactory is Script {
         console2.log("- Salt used:", vm.toString(SALT));
         console2.log("- Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
 
-        if (isFilecoinNetwork(chainId)) console2.log("- Gas settings: Optimized for Filecoin network");
-
         console2.log("\nNext steps:");
-        console2.log("1. Register institutions using: registerInstitution(address admin, string name, string url)");
+        console2.log("1. Register entities using: registerEntity(address admin, string name, string url)");
         console2.log("2. Fund the deployer address with", getNetworkCurrency(chainId), "for transaction fees");
 
         return AffixFactoryAddress;
-    }
-
-    function isFilecoinNetwork(uint256 chainId) internal pure returns (bool) {
-        return chainId == 314_159 || chainId == 314; // Calibration and Mainnet
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {
