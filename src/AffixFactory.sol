@@ -39,7 +39,11 @@ contract AffixFactory is Ownable {
         address admin,
         string memory name,
         string memory url
-    ) external onlyOwner returns (address registryAddress) {
+    )
+        external
+        onlyOwner
+        returns (address registryAddress)
+    {
         require(admin != address(0), "Invalid admin address");
         require(bytes(name).length > 0, "Entity name cannot be empty");
         require(bytes(url).length > 0, "Entity URL cannot be empty");
@@ -98,9 +102,11 @@ contract AffixFactory is Ownable {
      * @return url The URL of the entity
      * @return isRegistered Whether the registry is registered with this factory
      */
-    function getEntityDetails(
-        address registryAddress
-    ) external view returns (address admin, string memory entityName, string memory url, bool isRegistered) {
+    function getEntityDetails(address registryAddress)
+        external
+        view
+        returns (address admin, string memory entityName, string memory url, bool isRegistered)
+    {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
             AffixRegistry registry = AffixRegistry(registryAddress);
