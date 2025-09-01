@@ -80,58 +80,17 @@ forge script script/RegisterEntity.s.sol \
 #### 4. Add Agents (Optional)
 
 ```bash
-export AGENT_ADDRESS="0x_agent_address"
-export REGISTRY_ADDRESS="0x_registry_address_from_step_3"
-
 forge script script/AddAgent.s.sol \
-  --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
-  --broadcast \
-  --gas-limit 30000000 \
-  --gas-price 150000000000 \
-  --evm-version paris \
-  --skip-simulation
+  --rpc-url optimism \
+  --broadcast
 ```
 
 #### 5. Issue Documents
 
 ```bash
-export DOCUMENT_CID="your_ipfs_cid"
-export DOCUMENT_METADATA="document description"
-
 forge script script/IssueDocument.s.sol \
-  --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
-  --broadcast \
-  --gas-limit 30000000 \
-  --gas-price 150000000000 \
-  --evm-version paris \
-  --skip-simulation
-```
-
-### Calibration-Specific Notes
-
-- **EVM Version**: Use `--evm-version paris` to avoid PUSH0 opcode compatibility issues
-- **Gas Limits**: Filecoin requires higher gas limits (30M recommended) for message storage
-- **Skip Simulation**: Use `--skip-simulation` to bypass gas estimation issues
-- **Explorer**: View contracts on [Calibration FilScan](https://calibration.filscan.io/)
-
-### Troubleshooting
-
-**Gas Estimation Errors**: If you see "GasLimit field cannot be less than the cost of storing a message on chain",
-increase the gas limit and add `--skip-simulation`.
-
-**EIP-3855 Warnings**: This warning about PUSH0 opcode is expected on Filecoin. Using `--evm-version paris` resolves
-compatibility issues.
-
-**Contract Not Found**: Ensure the factory deployed successfully by checking the transaction hash on
-[Calibration FilScan](https://calibration.filscan.io/).
-
-### Send some funds
-
-```bash
-➜ cast send 0x201feEbC7803799A8ADd8eF765642C51b7445bc6 \
-  --value 0.1ether \
-  --rpc-url https://api.calibration.node.glif.io/rpc/v1 \
-  --private-key 0x...
+  --rpc-url optimism \
+  --broadcast
 ```
 
 ## Support
@@ -141,11 +100,6 @@ Feel free to reach out to [Julien](https://github.com/julienbrg) on [Farcaster](
 [Status](https://status.app/u/iwSACggKBkp1bGllbgM=#zQ3shmh1sbvE6qrGotuyNQB22XU5jTrZ2HFC8bA56d5kTS2fy),
 [Telegram](https://t.me/julienbrg), [Twitter](https://twitter.com/julienbrg),
 [Discord](https://discordapp.com/users/julienbrg), or [LinkedIn](https://www.linkedin.com/in/julienberanger/).
-
-## Credits
-
-I want to thank [Paul Razvan Berg](https://github.com/paulrberg) for his work on the
-[Foundry template](https://github.com/PaulRBerg/foundry-template) we used.
 
 ## License
 
