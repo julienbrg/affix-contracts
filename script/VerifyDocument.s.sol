@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -36,15 +36,16 @@ contract VerifyDocument is Script {
         require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
-        AffixRegistry registry = AffixRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(payable(registryAddress));
 
         console2.log("Entity name:", registry.entityName());
         console2.log("Entity URL:", registry.entityUrl());
-        console2.log("Registry admin:", registry.admin());
+        console2.log("Registry owner:", registry.owner());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
-            registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) = registry.verifyDocument(
+            documentCid
+        );
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);
@@ -74,8 +75,8 @@ contract VerifyDocument is Script {
             console2.log("Issued by address:", issuedBy);
             console2.log("Registry contract:", registryAddress);
 
-            // Check if issuer was admin or agent
-            if (issuedBy == registry.admin()) console2.log("Issued by: Entity Admin");
+            // Check if issuer was owner or agent
+            if (issuedBy == registry.owner()) console2.log("Issued by: Entity Owner");
             else if (registry.isAgent(issuedBy)) console2.log("Issued by: Authorized Agent");
             else console2.log("Issued by: Unknown (possibly revoked agent)");
 

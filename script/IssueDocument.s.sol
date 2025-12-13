@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -9,7 +9,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 /**
  * @title IssueDocument
  * @notice Script to issue a document using an entity's AffixRegistry
- * @dev The caller must be either the admin or an authorized agent
+ * @dev The caller must be either the owner or an authorized agent
  */
 contract IssueDocument is Script {
     // Expected AffixFactory address (same across all chains)
@@ -31,7 +31,7 @@ contract IssueDocument is Script {
 
         AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
-        // Get the issuer address (could be admin or agent)
+        // Get the issuer address (could be owner or agent)
         address issuer = vm.addr(privateKey);
         console2.log("Issuer address:", issuer);
         console2.log("Registry address:", registryAddress);
@@ -42,19 +42,19 @@ contract IssueDocument is Script {
         require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
-        AffixRegistry registry = AffixRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(payable(registryAddress));
         console2.log("Entity name:", registry.entityName());
         console2.log("Entity URL:", registry.entityUrl());
-        console2.log("Registry admin:", registry.admin());
+        console2.log("Registry owner:", registry.owner());
 
         // Check if issuer can issue documents
         require(registry.canIssueDocuments(issuer), "Issuer not authorized to issue documents");
 
         // Determine issuer role
         string memory issuerRole;
-        if (issuer == registry.admin()) issuerRole = "admin";
+        if (issuer == registry.owner()) issuerRole = "owner";
         else if (registry.isAgent(issuer)) issuerRole = "agent";
-        else revert("Issuer is not admin or authorized agent");
+        else revert("Issuer is not owner or authorized agent");
 
         console2.log("Issuer role:", issuerRole);
 
@@ -73,11 +73,12 @@ contract IssueDocument is Script {
         vm.stopBroadcast();
 
         // Verify the document was issued
-        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
-            registry.verifyDocument(documentCid);
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) = registry.verifyDocument(
+            documentCid
+        );
 
         // Get full document details
-        (,,,, string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
+        (, , , , string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
 
         console2.log("\nDocument verification:");
         console2.log("- Exists:", exists);

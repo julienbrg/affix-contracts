@@ -46,6 +46,7 @@ forge script script/RegisterEntity.s.sol --rpc-url op --broadcast
 forge script script/AddAgent.s.sol --rpc-url op --broadcast
 forge script script/IssueDocument.s.sol --rpc-url op --broadcast
 forge script script/VerifyDocument.s.sol --rpc-url op --broadcast
+forge script script/FundRegistry.s.sol --rpc-url op --broadcast
 ```
 
 ## Deploy to OP Mainnet
@@ -89,6 +90,16 @@ forge script script/AddAgent.s.sol \
 
 ```bash
 forge script script/IssueDocument.s.sol \
+  --rpc-url optimism \
+  --broadcast
+```
+
+#### 6. Fund Registry (Optional)
+
+Fund a registry contract with 0.0001 ETH:
+
+```bash
+forge script script/FundRegistry.s.sol \
   --rpc-url optimism \
   --broadcast
 ```

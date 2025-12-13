@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { Test, console } from "forge-std/src/Test.sol";
 import { AffixFactory } from "../src/AffixFactory.sol";
@@ -152,7 +152,7 @@ contract SafeDeploymentTest is Test {
         vm.startPrank(DEPLOYER1);
         uint256 gasBefore = gasleft();
 
-        (bool success,) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
+        (bool success, ) = address(mockFactory).call(abi.encodePacked(SALT, creationCode));
         require(success, "Deployment failed");
 
         uint256 gasUsed = gasBefore - gasleft();
@@ -161,7 +161,7 @@ contract SafeDeploymentTest is Test {
         console.log("Gas used for deployment:", gasUsed);
 
         // Gas should be reasonable (increased limit due to Ownable complexity)
-        assertLt(gasUsed, 2_650_000, "Deployment should use reasonable gas");
+        assertLt(gasUsed, 2_670_000, "Deployment should use reasonable gas");
     }
 
     function testFactoryFunctionality() public {
@@ -189,10 +189,11 @@ contract SafeDeploymentTest is Test {
         assertTrue(registryAddress != address(0), "Registry address should not be zero");
 
         // Verify entity details
-        (address admin, string memory entityName, string memory url, bool isRegistered) =
-            factory.getEntityDetails(registryAddress);
+        (address owner, string memory entityName, string memory url, bool isRegistered) = factory.getEntityDetails(
+            registryAddress
+        );
         assertTrue(isRegistered, "Entity should be registered");
-        assertEq(admin, ADMIN1, "Admin should match");
+        assertEq(owner, ADMIN1, "Owner should match");
         assertEq(entityName, TEST_ENTITY_NAME, "Entity name should match");
         assertEq(url, TEST_ENTITY_URL, "Entity URL should match");
 
@@ -200,7 +201,7 @@ contract SafeDeploymentTest is Test {
         console.log("Factory address:", factoryAddress);
         console.log("Registry address:", registryAddress);
         console.log("Factory owner:", actualOwner);
-        console.log("Registry admin:", admin);
+        console.log("Registry owner:", owner);
         console.log("Entity URL:", url);
     }
 
@@ -268,11 +269,7 @@ contract SafeDeploymentTest is Test {
         address deployer,
         bytes32 salt,
         bytes32 bytecodeHash
-    )
-        internal
-        pure
-        returns (address)
-    {
+    ) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)))));
     }
 }
@@ -286,7 +283,7 @@ contract MockSafeSingletonFactory {
     mapping(bytes32 => address) public deployedContracts;
 
     // Add receive function to handle plain ether transfers
-    receive() external payable { }
+    receive() external payable {}
 
     /**
      * @notice Simulates CREATE2 deployment
@@ -325,7 +322,9 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) { revert(0, 0) }
+            if iszero(deployedAddress) {
+                revert(0, 0)
+            }
         }
 
         // Store deployment

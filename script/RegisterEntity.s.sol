@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -27,11 +27,11 @@ contract RegisterEntity is Script {
         // Entity details
         string memory entityName = vm.envString("ENTITY_NAME");
         string memory entityUrl = vm.envString("ENTITY_URL");
-        address adminAddress = vm.envAddress("ADMIN_ADDRESS");
+        address ownerAddress = vm.envAddress("ADMIN_ADDRESS");
 
         require(bytes(entityName).length > 0, "ENTITY_NAME environment variable required");
         require(bytes(entityUrl).length > 0, "ENTITY_URL environment variable required");
-        require(adminAddress != address(0), "ADMIN_ADDRESS environment variable required");
+        require(ownerAddress != address(0), "ADMIN_ADDRESS environment variable required");
 
         // Check if factory exists at expected address
         uint256 factoryCodeSize;
@@ -48,7 +48,7 @@ contract RegisterEntity is Script {
 
         console2.log("Factory owner:", factoryOwner);
         console2.log("Script runner:", deployer);
-        console2.log("Entity admin address:", adminAddress);
+        console2.log("Entity owner address:", ownerAddress);
         console2.log("Entity name:", entityName);
         console2.log("Entity URL:", entityUrl);
 
@@ -59,7 +59,7 @@ contract RegisterEntity is Script {
         vm.startBroadcast(privateKey);
 
         // Register the entity and get the registry address
-        registryAddress = factory.registerEntity(adminAddress, entityName, entityUrl);
+        registryAddress = factory.registerEntity(ownerAddress, entityName, entityUrl);
 
         vm.stopBroadcast();
 
@@ -67,8 +67,8 @@ contract RegisterEntity is Script {
         console2.log("Registry contract deployed at:", registryAddress);
 
         // Verify the registry
-        AffixRegistry registry = AffixRegistry(registryAddress);
-        console2.log("Registry admin:", registry.admin());
+        AffixRegistry registry = AffixRegistry(payable(registryAddress));
+        console2.log("Registry owner:", registry.owner());
         console2.log("Registry name:", registry.entityName());
         console2.log("Registry URL:", registry.entityUrl());
         console2.log("Registry agent count:", registry.getAgentCount());
@@ -77,16 +77,17 @@ contract RegisterEntity is Script {
         assertTrue(factory.isEntityRegistered(registryAddress), "Factory should recognize the registry");
 
         // Display factory statistics
-        (uint256 totalEntities, address owner) = factory.getFactoryStats();
+        (uint256 totalEntities, address factoryOwnerAddr) = factory.getFactoryStats();
         console2.log("\nFactory Statistics:");
         console2.log("- Total entities:", totalEntities);
-        console2.log("- Factory owner:", owner);
+        console2.log("- Factory owner:", factoryOwnerAddr);
 
         // Show entity details
-        (address admin, string memory name, string memory url, bool isRegistered) =
-            factory.getEntityDetails(registryAddress);
+        (address entityOwner, string memory name, string memory url, bool isRegistered) = factory.getEntityDetails(
+            registryAddress
+        );
         console2.log("\nEntity Details:");
-        console2.log("- Admin:", admin);
+        console2.log("- Owner:", entityOwner);
         console2.log("- Name:", name);
         console2.log("- URL:", url);
         console2.log("- Is registered:", isRegistered);
@@ -97,17 +98,17 @@ contract RegisterEntity is Script {
         console2.log("- Registry:", getExplorerUrl(chainId, registryAddress));
 
         console2.log("\nNext steps:");
-        console2.log("1. The admin can add agents using: addAgent(address agent)");
+        console2.log("1. The owner can add agents using: addAgent(address agent)");
         console2.log(
-            "2. Admin/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)"
+            "2. Owner/agents can issue documents using: issueDocument(string cid) or issueDocumentWithMetadata(string cid, string metadata)"
         );
         console2.log("3. Anyone can verify documents using: verifyDocument(string cid)");
-        console2.log("4. Admin can manage agents using: addAgent(address) and revokeAgent(address)");
-        console2.log("5. Admin can update entity details using: updateEntityName(string) and updateEntityUrl(string)");
+        console2.log("4. Owner can manage agents using: addAgent(address) and revokeAgent(address)");
+        console2.log("5. Owner can update entity details using: updateEntityName(string) and updateEntityUrl(string)");
 
         console2.log("\nEnvironment variables for next scripts:");
         console2.log("export REGISTRY_ADDRESS=", registryAddress);
-        console2.log("export ADMIN_ADDRESS=", adminAddress);
+        console2.log("export ADMIN_ADDRESS=", ownerAddress);
 
         return registryAddress;
     }

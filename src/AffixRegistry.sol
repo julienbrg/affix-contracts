@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
+
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title AffixRegistry
  * @dev Registry contract for managing documents issued by a specific entity
  */
-contract AffixRegistry {
+contract AffixRegistry is Ownable {
     // Entity details
-    address public admin;
     string public entityName;
     string public entityUrl;
 
@@ -41,34 +42,40 @@ contract AffixRegistry {
 
     event EntityUrlUpdated(string oldUrl, string newUrl);
 
-    // Modifiers
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can call this function");
+    event EthReceived(address indexed sender, uint256 amount);
+
+    event EthWithdrawn(address indexed recipient, uint256 amount);
+
+    event TransactionSponsored(address indexed delegator, uint256 gasUsed, uint256 gasCost);
+
+    modifier documentNotExists(string memory cid) {
+        _documentNotExists(cid);
         _;
     }
 
-    modifier documentNotExists(string memory cid) {
+    function _documentNotExists(string memory cid) internal view {
         require(!documents[cid].exists, "Document already exists");
-        _;
     }
 
     modifier validAgent(address agent) {
-        require(agent != address(0), "Invalid agent address");
+        _validAgent(agent);
         _;
+    }
+
+    function _validAgent(address agent) internal pure {
+        require(agent != address(0), "Invalid agent address");
     }
 
     /**
      * @dev Constructor to initialize the registry
-     * @param _admin The address of the entity admin
+     * @param initialOwner The address of the entity admin
      * @param _name The name of the entity
      * @param _url The URL associated with the entity
      */
-    constructor(address _admin, string memory _name, string memory _url) {
-        require(_admin != address(0), "Invalid admin address");
+    constructor(address initialOwner, string memory _name, string memory _url) Ownable(initialOwner) {
         require(bytes(_name).length > 0, "Entity name cannot be empty");
         require(bytes(_url).length > 0, "Entity URL cannot be empty");
 
-        admin = _admin;
         entityName = _name;
         entityUrl = _url;
     }
@@ -77,7 +84,7 @@ contract AffixRegistry {
      * @dev Add an agent (only admin can call this)
      * @param agent The address of the agent to add
      */
-    function addAgent(address agent) external onlyAdmin validAgent(agent) {
+    function addAgent(address agent) external onlyOwner validAgent(agent) {
         require(!agents[agent], "Agent already exists");
 
         agents[agent] = true;
@@ -90,7 +97,7 @@ contract AffixRegistry {
      * @dev Revoke an agent (only admin can call this)
      * @param agent The address of the agent to revoke
      */
-    function revokeAgent(address agent) external onlyAdmin {
+    function revokeAgent(address agent) external onlyOwner {
         require(agents[agent], "Agent does not exist");
 
         agents[agent] = false;
@@ -143,8 +150,13 @@ contract AffixRegistry {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] =
-            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
+        documents[cid] = Document({
+            cid: cid,
+            timestamp: block.timestamp,
+            exists: true,
+            metadata: metadata,
+            issuedBy: msg.sender
+        });
 
         documentCids.push(cid);
 
@@ -159,11 +171,9 @@ contract AffixRegistry {
      * @return entityName_ The name of the issuing entity
      * @return entityUrl_ The URL of the issuing entity
      */
-    function verifyDocument(string memory cid)
-        external
-        view
-        returns (bool exists, uint256 timestamp, string memory entityName_, string memory entityUrl_)
-    {
+    function verifyDocument(
+        string memory cid
+    ) external view returns (bool exists, uint256 timestamp, string memory entityName_, string memory entityUrl_) {
         Document memory doc = documents[cid];
         return (doc.exists, doc.timestamp, entityName, entityUrl);
     }
@@ -178,7 +188,9 @@ contract AffixRegistry {
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(string memory cid)
+    function getDocumentDetails(
+        string memory cid
+    )
         external
         view
         returns (
@@ -198,7 +210,7 @@ contract AffixRegistry {
      * @dev Update entity name (only callable by the admin)
      * @param newName The new name for the entity
      */
-    function updateEntityName(string memory newName) external onlyAdmin {
+    function updateEntityName(string memory newName) external onlyOwner {
         require(bytes(newName).length > 0, "Entity name cannot be empty");
 
         string memory oldName = entityName;
@@ -211,7 +223,7 @@ contract AffixRegistry {
      * @dev Update entity URL (only callable by the admin)
      * @param newUrl The new URL for the entity
      */
-    function updateEntityUrl(string memory newUrl) external onlyAdmin {
+    function updateEntityUrl(string memory newUrl) external onlyOwner {
         require(bytes(newUrl).length > 0, "Entity URL cannot be empty");
 
         string memory oldUrl = entityUrl;
@@ -230,12 +242,12 @@ contract AffixRegistry {
     }
 
     /**
-     * @dev Check if an address can issue documents (admin or agent)
+     * @dev Check if an address can issue documents (owner or agent)
      * @param issuer The address to check
      * @return Boolean indicating if the address can issue documents
      */
     function canIssueDocuments(address issuer) public view returns (bool) {
-        return issuer == admin || agents[issuer];
+        return issuer == owner() || agents[issuer];
     }
 
     /**
@@ -306,12 +318,12 @@ contract AffixRegistry {
      * @return Boolean indicating if the contract is valid
      */
     function isValidRegistry() external view returns (bool) {
-        return admin != address(0) && bytes(entityName).length > 0 && bytes(entityUrl).length > 0;
+        return owner() != address(0) && bytes(entityName).length > 0 && bytes(entityUrl).length > 0;
     }
 
     /**
      * @dev Get registry information
-     * @return admin_ The admin address
+     * @return owner_ The owner address
      * @return entityName_ The entity name
      * @return entityUrl_ The entity URL
      * @return documentCount The total number of documents
@@ -321,7 +333,7 @@ contract AffixRegistry {
         external
         view
         returns (
-            address admin_,
+            address owner_,
             string memory entityName_,
             string memory entityUrl_,
             uint256 documentCount,
@@ -333,6 +345,34 @@ contract AffixRegistry {
             if (agents[agentList[i]]) activeAgentCount++;
         }
 
-        return (admin, entityName, entityUrl, documentCids.length, activeAgentCount);
+        return (owner(), entityName, entityUrl, documentCids.length, activeAgentCount);
+    }
+
+    /**
+     * @dev Receive function to accept ETH for sponsoring EIP-7702 delegated transactions
+     */
+    receive() external payable {
+        emit EthReceived(msg.sender, msg.value);
+    }
+
+    /**
+     * @dev Fallback function to accept ETH
+     */
+    fallback() external payable {
+        emit EthReceived(msg.sender, msg.value);
+    }
+
+    /**
+     * @dev Withdraw ETH from the contract (only owner)
+     * @param amount The amount of ETH to withdraw in wei (use address(this).balance to withdraw all)
+     */
+    function withdrawSponsorFunds(uint256 amount) external onlyOwner {
+        require(amount > 0, "Amount must be greater than 0");
+        require(address(this).balance >= amount, "Insufficient balance");
+
+        (bool success, ) = payable(owner()).call{ value: amount }("");
+        require(success, "ETH transfer failed");
+
+        emit EthWithdrawn(owner(), amount);
     }
 }
