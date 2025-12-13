@@ -42,7 +42,7 @@ contract FundRegistry is Script {
         vm.startBroadcast(privateKey);
 
         // Send ETH to the registry
-        (bool success, ) = payable(registryAddress).call{ value: FUND_AMOUNT }("");
+        (bool success,) = payable(registryAddress).call{ value: FUND_AMOUNT }("");
         require(success, "Failed to send ETH to registry");
 
         vm.stopBroadcast();

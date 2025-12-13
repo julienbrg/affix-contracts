@@ -43,9 +43,8 @@ contract VerifyDocument is Script {
         console2.log("Registry owner:", registry.owner());
 
         // Verify the document
-        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) = registry.verifyDocument(
-            documentCid
-        );
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
+            registry.verifyDocument(documentCid);
 
         console2.log("\n=== Document Verification Results ===");
         console2.log("Document exists:", exists);
@@ -58,10 +57,7 @@ contract VerifyDocument is Script {
 
             // Get full document details
             (
-                ,
-                ,
-                ,
-                ,
+                ,,,,
                 // bool existsDetails - not needed
                 // uint256 timestampDetails - not needed
                 // string memory entityNameDetails - not needed

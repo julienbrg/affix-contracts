@@ -83,9 +83,8 @@ contract RegisterEntity is Script {
         console2.log("- Factory owner:", factoryOwnerAddr);
 
         // Show entity details
-        (address entityOwner, string memory name, string memory url, bool isRegistered) = factory.getEntityDetails(
-            registryAddress
-        );
+        (address entityOwner, string memory name, string memory url, bool isRegistered) =
+            factory.getEntityDetails(registryAddress);
         console2.log("\nEntity Details:");
         console2.log("- Owner:", entityOwner);
         console2.log("- Name:", name);

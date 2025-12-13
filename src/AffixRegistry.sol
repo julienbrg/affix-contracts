@@ -150,13 +150,8 @@ contract AffixRegistry is Ownable {
     function _issueDocument(string memory cid, string memory metadata) internal documentNotExists(cid) {
         require(bytes(cid).length > 0, "IPFS CID cannot be empty");
 
-        documents[cid] = Document({
-            cid: cid,
-            timestamp: block.timestamp,
-            exists: true,
-            metadata: metadata,
-            issuedBy: msg.sender
-        });
+        documents[cid] =
+            Document({ cid: cid, timestamp: block.timestamp, exists: true, metadata: metadata, issuedBy: msg.sender });
 
         documentCids.push(cid);
 
@@ -171,9 +166,11 @@ contract AffixRegistry is Ownable {
      * @return entityName_ The name of the issuing entity
      * @return entityUrl_ The URL of the issuing entity
      */
-    function verifyDocument(
-        string memory cid
-    ) external view returns (bool exists, uint256 timestamp, string memory entityName_, string memory entityUrl_) {
+    function verifyDocument(string memory cid)
+        external
+        view
+        returns (bool exists, uint256 timestamp, string memory entityName_, string memory entityUrl_)
+    {
         Document memory doc = documents[cid];
         return (doc.exists, doc.timestamp, entityName, entityUrl);
     }
@@ -188,9 +185,7 @@ contract AffixRegistry is Ownable {
      * @return metadata Additional metadata
      * @return issuedBy The address that issued the document
      */
-    function getDocumentDetails(
-        string memory cid
-    )
+    function getDocumentDetails(string memory cid)
         external
         view
         returns (
@@ -370,7 +365,7 @@ contract AffixRegistry is Ownable {
         require(amount > 0, "Amount must be greater than 0");
         require(address(this).balance >= amount, "Insufficient balance");
 
-        (bool success, ) = payable(owner()).call{ value: amount }("");
+        (bool success,) = payable(owner()).call{ value: amount }("");
         require(success, "ETH transfer failed");
 
         emit EthWithdrawn(owner(), amount);

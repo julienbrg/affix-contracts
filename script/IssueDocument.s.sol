@@ -73,12 +73,11 @@ contract IssueDocument is Script {
         vm.stopBroadcast();
 
         // Verify the document was issued
-        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) = registry.verifyDocument(
-            documentCid
-        );
+        (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
+            registry.verifyDocument(documentCid);
 
         // Get full document details
-        (, , , , string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
+        (,,,, string memory metadataDetails, address issuedBy) = registry.getDocumentDetails(documentCid);
 
         console2.log("\nDocument verification:");
         console2.log("- Exists:", exists);

@@ -42,7 +42,7 @@ contract AffixRegistryETHTest is Test {
 
         // Send ETH directly to the contract
         vm.prank(user);
-        (bool success, ) = address(registry).call{ value: amount }("");
+        (bool success,) = address(registry).call{ value: amount }("");
         assertTrue(success, "ETH transfer should succeed");
 
         // Verify balance updated
@@ -218,7 +218,7 @@ contract AffixRegistryETHTest is Test {
         emit EthReceived(user, amount);
 
         vm.prank(user);
-        (bool success, ) = address(registry).call{ value: amount }(abi.encodeWithSignature("nonExistentFunction()"));
+        (bool success,) = address(registry).call{ value: amount }(abi.encodeWithSignature("nonExistentFunction()"));
         assertTrue(success, "Fallback should accept ETH");
 
         assertEq(address(registry).balance, amount, "Contract should have received ETH via fallback");
