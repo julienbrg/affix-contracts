@@ -53,7 +53,8 @@ contract FundRegistry is Script {
         console2.log("Increase:", registryBalanceAfter - registryBalanceBefore, "wei");
 
         console2.log("\n=== Funding Complete ===");
-        console2.log("Registry at", registryAddress, "successfully funded with", FUND_AMOUNT, "wei");
+        console2.log("Registry address:", registryAddress);
+        console2.log("Successfully funded with:", FUND_AMOUNT, "wei");
         console2.log("Explorer URL:", getExplorerUrl(chainId, registryAddress));
     }
 
