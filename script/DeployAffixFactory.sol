@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -15,11 +15,11 @@ contract DeployAffixFactory is Script {
     address constant SAFE_SINGLETON_FACTORY = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7;
 
     // Salt for CREATE2 deployment
-    bytes32 constant SALT = keccak256(bytes("AFFIX_DOCUMENT_FACTORY_V1"));
+    bytes32 constant SALT = keccak256(bytes("AFFIX_DOCUMENT_FACTORY_V2"));
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
-    function run() public returns (address AffixFactoryAddress) {
+    function run() public returns (address affixFactoryAddress) {
         uint256 chainId = block.chainid;
         console2.log("Deploying AffixFactory on chain ID:", chainId);
         console2.log("Network name:", getNetworkName(chainId));
@@ -30,14 +30,14 @@ contract DeployAffixFactory is Script {
         console2.log("Deployer/Future Factory Owner:", deployer);
 
         // Get the creation code for AffixFactory with constructor parameters
-        bytes memory AffixFactoryCreationCode = abi.encodePacked(
+        bytes memory affixFactoryCreationCode = abi.encodePacked(
             type(AffixFactory).creationCode,
             abi.encode(deployer) // Constructor parameter: initialOwner
         );
-        console2.log("AffixFactory creation code length:", AffixFactoryCreationCode.length, "bytes");
+        console2.log("AffixFactory creation code length:", affixFactoryCreationCode.length, "bytes");
 
         // Compute the expected address for AffixFactory
-        address expectedAffixFactory = calculateCreate2Address(SALT, keccak256(AffixFactoryCreationCode));
+        address expectedAffixFactory = calculateCreate2Address(SALT, keccak256(affixFactoryCreationCode));
         console2.log("Expected AffixFactory address:", expectedAffixFactory);
 
         // Check if contract is already deployed
@@ -59,13 +59,13 @@ contract DeployAffixFactory is Script {
             if (currentOwner == deployer) console2.log(" Factory owner is correct");
             else console2.log(" Factory owner mismatch - expected:", deployer, "actual:", currentOwner);
 
-            AffixFactoryAddress = expectedAffixFactory;
+            affixFactoryAddress = expectedAffixFactory;
         } else {
             // Start broadcasting with the private key
             vm.startBroadcast(privateKey);
 
             // Deploy AffixFactory using Safe Singleton Factory with proper gas for Filecoin
-            bytes memory callData = abi.encodePacked(SALT, AffixFactoryCreationCode);
+            bytes memory callData = abi.encodePacked(SALT, affixFactoryCreationCode);
 
             bool success;
             bytes memory returnData;
@@ -75,11 +75,11 @@ contract DeployAffixFactory is Script {
             require(success, "AffixFactory deployment failed");
 
             // Parse the returned address
-            AffixFactoryAddress = bytesToAddress(returnData);
-            console2.log("AffixFactory deployed at:", AffixFactoryAddress);
+            affixFactoryAddress = bytesToAddress(returnData);
+            console2.log("AffixFactory deployed at:", affixFactoryAddress);
 
             // Verify deployment
-            require(AffixFactoryAddress == expectedAffixFactory, "Deployed address mismatch");
+            require(affixFactoryAddress == expectedAffixFactory, "Deployed address mismatch");
             console2.log("Deployment verified successfully!");
 
             vm.stopBroadcast();
@@ -88,7 +88,7 @@ contract DeployAffixFactory is Script {
         }
 
         // Verify ownership is set correctly
-        AffixFactory factory = AffixFactory(AffixFactoryAddress);
+        AffixFactory factory = AffixFactory(affixFactoryAddress);
         address factoryOwner = factory.owner();
         console2.log("Factory owner set to:", factoryOwner);
 
@@ -99,23 +99,23 @@ contract DeployAffixFactory is Script {
         if (isNewDeployment) {
             console2.log("\n=== Deployment Complete ===");
             console2.log("Automatic verification disabled as requested");
-            console2.log("Contract deployed and functional at:", AffixFactoryAddress);
-            console2.log("Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
+            console2.log("Contract deployed and functional at:", affixFactoryAddress);
+            console2.log("Explorer URL:", getExplorerUrl(chainId, affixFactoryAddress));
         }
 
         console2.log("\nDeployment Summary:");
         console2.log("- Network:", getNetworkName(chainId));
         console2.log("- Chain ID:", chainId);
-        console2.log("- AffixFactory:", AffixFactoryAddress);
+        console2.log("- AffixFactory:", affixFactoryAddress);
         console2.log("- Factory Owner:", factoryOwner);
         console2.log("- Salt used:", vm.toString(SALT));
-        console2.log("- Explorer URL:", getExplorerUrl(chainId, AffixFactoryAddress));
+        console2.log("- Explorer URL:", getExplorerUrl(chainId, affixFactoryAddress));
 
         console2.log("\nNext steps:");
         console2.log("1. Register entities using: registerEntity(address admin, string name, string url)");
         console2.log("2. Fund the deployer address with", getNetworkCurrency(chainId), "for transaction fees");
 
-        return AffixFactoryAddress;
+        return affixFactoryAddress;
     }
 
     function calculateCreate2Address(bytes32 salt, bytes32 bytecodeHash) internal pure returns (address) {

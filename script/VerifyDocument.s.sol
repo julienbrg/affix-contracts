@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -13,7 +13,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
  */
 contract VerifyDocument is Script {
     // Current AffixFactory address
-    address constant AFFIX_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    address constant AFFIX_FACTORY_ADDRESS = 0x496E7ba233d66F1bA46D2783029795d46b551AD9;
 
     function run() public view {
         uint256 chainId = block.chainid;
@@ -36,11 +36,11 @@ contract VerifyDocument is Script {
         require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
         // Get registry details
-        AffixRegistry registry = AffixRegistry(registryAddress);
+        AffixRegistry registry = AffixRegistry(payable(registryAddress));
 
         console2.log("Entity name:", registry.entityName());
         console2.log("Entity URL:", registry.entityUrl());
-        console2.log("Registry admin:", registry.admin());
+        console2.log("Registry owner:", registry.owner());
 
         // Verify the document
         (bool exists, uint256 timestamp, string memory entityName, string memory entityUrl) =
@@ -57,10 +57,7 @@ contract VerifyDocument is Script {
 
             // Get full document details
             (
-                ,
-                ,
-                ,
-                ,
+                ,,,,
                 // bool existsDetails - not needed
                 // uint256 timestampDetails - not needed
                 // string memory entityNameDetails - not needed
@@ -74,8 +71,8 @@ contract VerifyDocument is Script {
             console2.log("Issued by address:", issuedBy);
             console2.log("Registry contract:", registryAddress);
 
-            // Check if issuer was admin or agent
-            if (issuedBy == registry.admin()) console2.log("Issued by: Entity Admin");
+            // Check if issuer was owner or agent
+            if (issuedBy == registry.owner()) console2.log("Issued by: Entity Owner");
             else if (registry.isAgent(issuedBy)) console2.log("Issued by: Authorized Agent");
             else console2.log("Issued by: Unknown (possibly revoked agent)");
 

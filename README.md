@@ -46,6 +46,7 @@ forge script script/RegisterEntity.s.sol --rpc-url op --broadcast
 forge script script/AddAgent.s.sol --rpc-url op --broadcast
 forge script script/IssueDocument.s.sol --rpc-url op --broadcast
 forge script script/VerifyDocument.s.sol --rpc-url op --broadcast
+forge script script/FundRegistry.s.sol --rpc-url op --broadcast
 ```
 
 ## Deploy to OP Mainnet
@@ -61,7 +62,7 @@ forge script script/DeployAffixFactory.sol \
 
 #### 2. Update Factory Address
 
-After successful factory deployment, update the factory address in `script/RegisterEntity.s.sol`:
+After successful factory deployment, update the factory address in each script under `script/`:
 
 ```solidity
 // Update this line with your deployed factory address
@@ -79,6 +80,8 @@ forge script script/RegisterEntity.s.sol \
 
 #### 4. Add Agents (Optional)
 
+Adding an agent costs 0.000001 ETH, which the registry forwards to the new agent to cover its first transactions:
+
 ```bash
 forge script script/AddAgent.s.sol \
   --rpc-url optimism \
@@ -89,6 +92,16 @@ forge script script/AddAgent.s.sol \
 
 ```bash
 forge script script/IssueDocument.s.sol \
+  --rpc-url optimism \
+  --broadcast
+```
+
+#### 6. Fund Registry (Optional)
+
+Fund a registry contract with 0.0001 ETH:
+
+```bash
+forge script script/FundRegistry.s.sol \
   --rpc-url optimism \
   --broadcast
 ```

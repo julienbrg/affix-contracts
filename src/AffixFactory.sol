@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { AffixRegistry } from "./AffixRegistry.sol";
@@ -17,7 +17,7 @@ contract AffixFactory is Ownable {
     mapping(address => bool) public isValidRegistry;
 
     // Events
-    event EntityRegistered(address indexed admin, address indexed contractAddress, string entityName, string url);
+    event EntityRegistered(address indexed owner, address indexed contractAddress, string entityName, string url);
 
     /**
      * @dev Constructor - sets the specified address as the owner
@@ -29,14 +29,14 @@ contract AffixFactory is Ownable {
 
     /**
      * @dev Register a new entity and deploy their AffixRegistry contract
-     * @param admin The address that will be the admin of the new registry
+     * @param entityOwner The address that will be the owner of the new registry
      * @param name The name of the entity
      * @param url The URL associated with the entity (e.g., website, verification portal)
      * @notice Only the factory owner can register new entities
      * @return registryAddress The address of the newly deployed registry
      */
     function registerEntity(
-        address admin,
+        address entityOwner,
         string memory name,
         string memory url
     )
@@ -44,19 +44,19 @@ contract AffixFactory is Ownable {
         onlyOwner
         returns (address registryAddress)
     {
-        require(admin != address(0), "Invalid admin address");
+        require(entityOwner != address(0), "Invalid owner address");
         require(bytes(name).length > 0, "Entity name cannot be empty");
         require(bytes(url).length > 0, "Entity URL cannot be empty");
 
         // Deploy new AffixRegistry contract
-        AffixRegistry newRegistry = new AffixRegistry(admin, name, url);
+        AffixRegistry newRegistry = new AffixRegistry(entityOwner, name, url);
         registryAddress = address(newRegistry);
 
         // Update tracking
         deployedRegistries.push(registryAddress);
         isValidRegistry[registryAddress] = true;
 
-        emit EntityRegistered(admin, registryAddress, name, url);
+        emit EntityRegistered(entityOwner, registryAddress, name, url);
     }
 
     /**
@@ -95,9 +95,9 @@ contract AffixFactory is Ownable {
     }
 
     /**
-     * @dev Get entity details including name, admin, and URL
+     * @dev Get entity details including name, owner, and URL
      * @param registryAddress The registry contract address
-     * @return admin The admin address of the registry
+     * @return owner The owner address of the registry
      * @return entityName The name of the entity
      * @return url The URL of the entity
      * @return isRegistered Whether the registry is registered with this factory
@@ -105,12 +105,12 @@ contract AffixFactory is Ownable {
     function getEntityDetails(address registryAddress)
         external
         view
-        returns (address admin, string memory entityName, string memory url, bool isRegistered)
+        returns (address owner, string memory entityName, string memory url, bool isRegistered)
     {
         isRegistered = isValidRegistry[registryAddress];
         if (isRegistered) {
-            AffixRegistry registry = AffixRegistry(registryAddress);
-            admin = registry.admin();
+            AffixRegistry registry = AffixRegistry(payable(registryAddress));
+            owner = registry.owner();
             entityName = registry.entityName();
             url = registry.entityUrl();
         }

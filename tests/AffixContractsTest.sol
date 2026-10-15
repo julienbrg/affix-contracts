@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { Test, console } from "forge-std/src/Test.sol";
 import { AffixFactory } from "../src/AffixFactory.sol";
@@ -160,9 +160,9 @@ contract SafeDeploymentTest is Test {
 
         console.log("Gas used for deployment:", gasUsed);
 
-        // Gas should be reasonable (updated limit due to URL functionality added)
-        // Previous limit was 2,500,000, increased to 2,600,000 to accommodate URL storage
-        assertLt(gasUsed, 2_650_000, "Deployment should use reasonable gas - updated for URL functionality");
+        // Gas should be reasonable (updated limit due to URL functionality and Ownable)
+        // Previous limit was 2,500,000, increased to 3,000,000 to accommodate URL storage and Ownable
+        assertLt(gasUsed, 3_000_000, "Deployment should use reasonable gas - updated for URL functionality");
     }
 
     function testFactoryFunctionalityWithUrl() public {
@@ -326,7 +326,9 @@ contract MockSafeSingletonFactory {
         address deployedAddress;
         assembly {
             deployedAddress := create2(0, add(creationCode, 32), mload(creationCode), salt)
-            if iszero(deployedAddress) { revert(0, 0) }
+            if iszero(deployedAddress) {
+                revert(0, 0)
+            }
         }
 
         // Store deployment

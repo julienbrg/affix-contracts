@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.24;
+pragma solidity >=0.7.0 <0.9.0;
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
@@ -9,11 +9,11 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
 /**
  * @title AddAgent
  * @notice Script to add an agent to an entity's AffixRegistry
- * @dev The caller must be the registered admin of the entity
+ * @dev The caller must be the registered owner of the entity
  */
 contract AddAgent is Script {
     // Expected AffixFactory address (same across all chains)
-    address constant AFFIX_FACTORY_ADDRESS = 0x4aB7CC55122b0a2f07812240405cd47ecA999c0a;
+    address constant AFFIX_FACTORY_ADDRESS = 0x496E7ba233d66F1bA46D2783029795d46b551AD9;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
@@ -30,7 +30,7 @@ contract AddAgent is Script {
 
         AffixFactory factory = AffixFactory(AFFIX_FACTORY_ADDRESS);
 
-        // Get the caller address (should be the admin)
+        // Get the caller address (should be the owner)
         address caller = vm.addr(privateKey);
         console2.log("Caller address:", caller);
         console2.log("Registry address:", registryAddress);
@@ -39,16 +39,16 @@ contract AddAgent is Script {
         // Verify the registry is registered with the factory
         require(factory.isEntityRegistered(registryAddress), "Registry not registered with factory");
 
-        // Get registry details and verify caller is admin
-        AffixRegistry registry = AffixRegistry(registryAddress);
-        address registryAdmin = registry.admin();
+        // Get registry details and verify caller is owner
+        AffixRegistry registry = AffixRegistry(payable(registryAddress));
+        address registryOwner = registry.owner();
 
-        console2.log("Registry admin:", registryAdmin);
+        console2.log("Registry owner:", registryOwner);
         console2.log("Entity name:", registry.entityName());
         console2.log("Current agent count:", registry.getAgentCount());
 
-        // Verify the caller is indeed the admin of the registry
-        require(registry.admin() == caller, "Caller is not the registry admin");
+        // Verify the caller is indeed the owner of the registry
+        require(registry.owner() == caller, "Caller is not the registry owner");
 
         // Check if agent is already added
         if (registry.isAgent(agentAddress)) {
@@ -59,8 +59,8 @@ contract AddAgent is Script {
         // Start broadcasting
         vm.startBroadcast(privateKey);
 
-        // Add the agent
-        registry.addAgent(agentAddress);
+        // Add the agent and fund it
+        registry.addAgent{ value: 0.000_001 ether }(agentAddress);
 
         vm.stopBroadcast();
 
