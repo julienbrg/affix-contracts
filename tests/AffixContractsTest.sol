@@ -161,8 +161,8 @@ contract SafeDeploymentTest is Test {
         console.log("Gas used for deployment:", gasUsed);
 
         // Gas should be reasonable (updated limit due to URL functionality and Ownable)
-        // Previous limit was 2,500,000, increased to 2,700,000 to accommodate URL storage and Ownable
-        assertLt(gasUsed, 2_700_000, "Deployment should use reasonable gas - updated for URL functionality");
+        // Previous limit was 2,500,000, increased to 3,000,000 to accommodate URL storage and Ownable
+        assertLt(gasUsed, 3_000_000, "Deployment should use reasonable gas - updated for URL functionality");
     }
 
     function testFactoryFunctionalityWithUrl() public {

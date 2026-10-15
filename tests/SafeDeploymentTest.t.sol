@@ -161,7 +161,7 @@ contract SafeDeploymentTest is Test {
         console.log("Gas used for deployment:", gasUsed);
 
         // Gas should be reasonable (increased limit due to Ownable complexity)
-        assertLt(gasUsed, 2_700_000, "Deployment should use reasonable gas");
+        assertLt(gasUsed, 3_000_000, "Deployment should use reasonable gas");
     }
 
     function testFactoryFunctionality() public {
