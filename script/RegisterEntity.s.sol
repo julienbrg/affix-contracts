@@ -14,7 +14,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
  */
 contract RegisterEntity is Script {
     // UPDATED: Filecoin Calibration AffixFactory address
-    address constant AFFIX_FACTORY_ADDRESS = 0x4aB7CC55122b0a2f07812240405cd47ecA999c0a;
+    address constant AFFIX_FACTORY_ADDRESS = 0x496E7ba233d66F1bA46D2783029795d46b551AD9;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
