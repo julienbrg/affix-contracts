@@ -13,7 +13,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
  */
 contract RevokeAgent is Script {
     // Expected AffixFactory address (same across all chains)
-    address constant AFFIX_FACTORY_ADDRESS = 0x3f7e9f20878521B8AF089209E83263ee7CF3a0a1;
+    address constant AFFIX_FACTORY_ADDRESS = 0x496E7ba233d66F1bA46D2783029795d46b551AD9;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 

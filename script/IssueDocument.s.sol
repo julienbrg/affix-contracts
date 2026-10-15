@@ -13,7 +13,7 @@ import { AffixRegistry } from "../src/AffixRegistry.sol";
  */
 contract IssueDocument is Script {
     // Expected AffixFactory address (same across all chains)
-    address constant AFFIX_FACTORY_ADDRESS = 0xc81e0B078De7d58449454b18115616a6a6365A1C;
+    address constant AFFIX_FACTORY_ADDRESS = 0x496E7ba233d66F1bA46D2783029795d46b551AD9;
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
