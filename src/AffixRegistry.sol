@@ -83,12 +83,18 @@ contract AffixRegistry is Ownable {
     /**
      * @dev Add an agent (only admin can call this)
      * @param agent The address of the agent to add
+     * @notice Requires 0.000001 ETH to be sent, which will be forwarded to the new agent
      */
-    function addAgent(address agent) external onlyOwner validAgent(agent) {
+    function addAgent(address agent) external payable onlyOwner validAgent(agent) {
         require(!agents[agent], "Agent already exists");
+        require(msg.value >= 0.000_001 ether, "Must send at least 0.000001 ETH");
 
         agents[agent] = true;
         agentList.push(agent);
+
+        // Send 0.000001 ETH to the new agent
+        (bool success,) = payable(agent).call{ value: 0.000_001 ether }("");
+        require(success, "ETH transfer to agent failed");
 
         emit AgentAdded(agent, msg.sender);
     }
@@ -120,15 +126,6 @@ contract AffixRegistry is Ownable {
      */
     function issueDocument(string memory cid) external {
         require(canIssueDocuments(msg.sender), "Not authorized to issue documents");
-        _issueDocument(cid, "");
-    }
-
-    /**
-     * @dev Issue a new document (CALLABLE BY ANYONE FOR TESTS ONLY)
-     * @param cid The IPFS CID of the document
-     * @notice METHOD MUST BE REMOVE FOR PRODUCTION USE
-     */
-    function issueDocumentOpenBar(string memory cid) external {
         _issueDocument(cid, "");
     }
 
