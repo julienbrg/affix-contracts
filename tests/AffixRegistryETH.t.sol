@@ -73,6 +73,7 @@ contract AffixRegistryETHTest is Test {
 
         // Send ETH using send
         vm.prank(user);
+        // solhint-disable-next-line check-send-result
         bool success = payable(address(registry)).send(amount);
         assertTrue(success, "Send should succeed");
 

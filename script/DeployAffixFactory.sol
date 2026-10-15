@@ -15,7 +15,7 @@ contract DeployAffixFactory is Script {
     address constant SAFE_SINGLETON_FACTORY = 0x914d7Fec6aaC8cd542e72Bca78B30650d45643d7;
 
     // Salt for CREATE2 deployment
-    bytes32 constant SALT = keccak256(bytes("AFFIX_DOCUMENT_FACTORY_V1"));
+    bytes32 constant SALT = keccak256(bytes("AFFIX_DOCUMENT_FACTORY_V2"));
 
     uint256 privateKey = vm.envUint("PRIVATE_KEY");
 
