@@ -59,8 +59,8 @@ contract AddAgent is Script {
         // Start broadcasting
         vm.startBroadcast(privateKey);
 
-        // Add the agent
-        registry.addAgent(agentAddress);
+        // Add the agent and fund it
+        registry.addAgent{ value: 0.000_001 ether }(agentAddress);
 
         vm.stopBroadcast();
 
